@@ -1,0 +1,3 @@
+--disable all
+--enable fileHeader
+--header "\nCopyright (c) {year} 쿠링\nSee the 'License.txt' file for licensing information.\n"
