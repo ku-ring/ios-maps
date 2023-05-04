@@ -7,4 +7,4 @@
 
 import Combine
 
-var keyboardVisibilityPublisher = PassthroughSubject<Bool, Never>()
+public var keyboardVisibilityPublisher = PassthroughSubject<Bool, Never>()

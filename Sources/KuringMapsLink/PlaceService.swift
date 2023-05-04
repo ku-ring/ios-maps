@@ -37,6 +37,10 @@ public class PlaceService: ObservableObject {
             .store(in: &subscriptions)
     }
     
+    public func clearSearchText() {
+        self.text = ""
+    }
+    
     public func searchPlace() {
         guard !places.isEmpty else {
             results = nil

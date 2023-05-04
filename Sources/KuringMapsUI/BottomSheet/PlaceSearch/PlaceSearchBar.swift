@@ -12,7 +12,7 @@ struct PlaceSearchBar: View {
     @Environment(\.mapAppearance) var appearance
     @EnvironmentObject var placeService: PlaceService
     
-    @FocusState private var isSearchFocused: Bool
+    @FocusState var isSearchFocused: Bool
     @Binding var isOpen: Bool
     
     var body: some View {
@@ -26,6 +26,14 @@ struct PlaceSearchBar: View {
                 .onChange(of: isSearchFocused) { onSearch in
                     isOpen = onSearch
                 }
+            
+            Button {
+                placeService.clearSearchText()
+            } label: {
+                Image(systemName: "multiply.circle.fill")
+                    .foregroundColor(.secondary)
+                    .opacity(placeService.text.isEmpty ? 0 : 1)
+            }
         }
         .padding(8)
         .background {

@@ -13,11 +13,13 @@ struct BottomContentView: View {
     @Binding var isOpen: Bool
     @EnvironmentObject var placeService: PlaceService
     
+    @FocusState private var isSearchFocused: Bool
+    
     var body: some View {
         ScrollView(.vertical, showsIndicators: false) {
             LazyVStack(spacing: 12) {
                 if !isOpen {
-                    if let icon = Image.icon(named: "area.museum.light") {
+                    if let icon = Image.icon(named: "museum.colored") {
                         icon
                             .resizable()
                             .aspectRatio(contentMode: .fit)
@@ -36,15 +38,23 @@ struct BottomContentView: View {
                     }
                 }
                 
-                PlaceSearchBar(isOpen: $isOpen)
+                PlaceSearchBar(isSearchFocused: _isSearchFocused, isOpen: $isOpen)
                                 
                 if let results = placeService.results, !results.isEmpty {
                     ForEach(results) { result in
                         Button {
-                            placeService.selectPlace(result)
+                            if isSearchFocused {
+                                isSearchFocused = false
+                                DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                                    placeService.selectPlace(result)
+                                }
+                            } else {
+                                placeService.selectPlace(result)
+                            }
                             isOpen = false
                         } label: {
                             PlaceSearchResultRow(place: result)
+                                .contentShape(Rectangle())
                         }
                         .buttonStyle(.plain)
                     }
@@ -54,7 +64,11 @@ struct BottomContentView: View {
                         
                         HStack {
                             /// Terms & Conditions >
-                            Button(action: {}) {
+                            Button {
+                                if let url = URL(string: "https://kuring.notion.site/e88095d4d67d4c4c92983fd85cb693b9") {
+                                    UIApplication.shared.open(url, options: [:])
+                                }
+                            } label: {
                                 HStack(spacing: 2) {
                                     Text("이용약관")
                                         .font(appearance.caption)

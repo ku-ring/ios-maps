@@ -13,7 +13,7 @@ class Antenna {
     
     init() {
         #if DEBUG
-        satellite = Satellite(host: "maps.ec2-13-113-178-212.ap-northeast-1.compute.amazonaws.com", scheme: .http)
+        satellite = Satellite(host: "http://ec2-54-173-178-211.compute-1.amazonaws.com:8080/api/v1/places?category=ss", scheme: .http)
         #else
         satellite = Satellite(host: "maps.ku-ring.com")
         #endif

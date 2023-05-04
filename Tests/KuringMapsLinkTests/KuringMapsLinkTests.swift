@@ -14,4 +14,10 @@ final class KuringMapsLinkTests: XCTestCase {
         print(places)
         XCTAssertFalse(places.isEmpty)
     }
+    
+    func test_placesFromServer() async throws {
+        let places = try await KuringMapsLink.allPlaces
+        print(places)
+        XCTAssertFalse(places.isEmpty)
+    }
 }

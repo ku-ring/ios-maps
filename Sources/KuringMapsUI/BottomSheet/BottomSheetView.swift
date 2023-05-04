@@ -38,6 +38,7 @@ struct BottomSheetView<Content: View>: View {
                 height: Constants.indicatorHeight
         ).onTapGesture {
             self.isOpen.toggle()
+            keyboardVisibilityPublisher.send(false)
         }
     }
 
