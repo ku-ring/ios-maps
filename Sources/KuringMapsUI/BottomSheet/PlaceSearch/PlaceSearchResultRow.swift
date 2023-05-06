@@ -17,6 +17,11 @@ struct PlaceSearchResultRow: View {
                 Text(place.name)
                     .font(.headline)
                 
+                if let buildingNumber = place.number {
+                    Text("\(buildingNumber)번")
+                        .font(.subheadline)
+                }
+                
                 Spacer()
                 
                 Text(place.category)

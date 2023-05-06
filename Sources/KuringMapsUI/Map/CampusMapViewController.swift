@@ -48,7 +48,7 @@ class CampusMapViewController: UIViewController, PlaceServiceDelegate {
                 places = remotePlaces
             } else {
                 
-                places = (try? Place.places) ?? []
+                places = Place.places
             }
         }
         PlaceManager.shared.delegate = self

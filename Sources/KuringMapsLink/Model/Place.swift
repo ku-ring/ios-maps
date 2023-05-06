@@ -49,6 +49,7 @@ public struct Place: Codable, Hashable, Identifiable {
     public let phone: String?
     public let data: String?
     public let places: [String: [String]]
+    public let parentId: String?
     
     public func hash(into hasher: inout Hasher) {
         hasher.combine(id)
@@ -58,7 +59,7 @@ public struct Place: Codable, Hashable, Identifiable {
         lhs.id == rhs.id
     }
     
-    public init(id: String, name: String, category: String, address: String, inCampus: Bool, number: Int?, iconUrl: String?, latitude: Double, longitude: Double, phone: String?, data: String?, places: [String: [String]]) {
+    public init(id: String, name: String, category: String, address: String, inCampus: Bool, number: Int?, iconUrl: String?, latitude: Double, longitude: Double, phone: String?, data: String?, places: [String: [String]], parentId: String?) {
         self.id = id
         self.name = name
         self.category = category
@@ -71,5 +72,6 @@ public struct Place: Codable, Hashable, Identifiable {
         self.phone = phone
         self.data = data
         self.places = places
+        self.parentId = parentId
     }
 }

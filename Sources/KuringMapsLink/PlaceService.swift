@@ -26,7 +26,7 @@ public class PlaceService: ObservableObject {
     var places: [Place]
     
     public init() {
-        places = (try? Place.places) ?? []
+        places = Place.places
         
         $text
             .debounce(for: .seconds(1), scheduler: DispatchQueue.main)
