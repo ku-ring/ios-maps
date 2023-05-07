@@ -43,7 +43,7 @@ class CampusMapViewController: UIViewController, PlaceServiceDelegate {
         super.viewDidLoad()
         
         Task {
-            let remotePlaces = try? await KuringMapsLink.allPlaces
+            let remotePlaces = try? await KuringMapsLink.placesInKonkukUniv
             if let remotePlaces {
                 places = remotePlaces
             } else {

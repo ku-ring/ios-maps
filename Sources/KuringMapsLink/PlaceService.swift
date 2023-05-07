@@ -21,7 +21,7 @@ public class PlaceService: ObservableObject {
     
     @Published public var searchKeyword = ""
     
-    var subscriptions: Set<AnyCancellable> = []
+    var cancellables: Set<AnyCancellable> = []
     
     var places: [Place]
     
@@ -32,9 +32,8 @@ public class PlaceService: ObservableObject {
             .debounce(for: .seconds(1), scheduler: DispatchQueue.main)
             .sink(receiveValue: { [weak self] keyword in
                 self?.searchKeyword = keyword
-            }
-            )
-            .store(in: &subscriptions)
+            })
+            .store(in: &cancellables)
     }
     
     public func clearSearchText() {

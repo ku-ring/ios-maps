@@ -19,16 +19,6 @@ class Antenna {
         #endif
     }
     
-    var allPlaces: [Place] {
-        get async throws {
-            let response: Response<[Place]> = try await satellite.response(
-                for: "api/v1/places",
-                httpMethod: .get
-            )
-            return response.data
-        }
-    }
-    
     func places(parentId: String) async throws -> [Place] {
         let response: Response<[Place]> = try await satellite.response(
             for: "api/v1/places",

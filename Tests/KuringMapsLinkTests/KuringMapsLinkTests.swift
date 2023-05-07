@@ -10,13 +10,13 @@ final class KuringMapsLinkTests: XCTestCase {
     }
     
     func test_places() throws {
-        let places = try Place.places
+        let places = Place.places
         print(places)
         XCTAssertFalse(places.isEmpty)
     }
     
     func test_placesFromServer() async throws {
-        let places = try await KuringMapsLink.allPlaces
+        let places = try await KuringMapsLink.placesInKonkukUniv
         print(places)
         XCTAssertFalse(places.isEmpty)
     }
