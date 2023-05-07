@@ -13,7 +13,7 @@ class Antenna {
     
     init() {
         #if DEBUG
-        satellite = Satellite(host: "http://ec2-54-173-178-211.compute-1.amazonaws.com:8080/api/v1/places?category=ss", scheme: .http)
+        satellite = Satellite(host: "ec2-54-173-178-211.compute-1.amazonaws.com:8080", scheme: .http)
         #else
         satellite = Satellite(host: "maps.ku-ring.com")
         #endif
@@ -27,6 +27,15 @@ class Antenna {
             )
             return response.data
         }
+    }
+    
+    func places(parentId: String) async throws -> [Place] {
+        let response: Response<[Place]> = try await satellite.response(
+            for: "api/v1/places",
+            httpMethod: .get,
+            queryItems: [.init(name: "parentId", value: parentId)]
+        )
+        return response.data
     }
 }
 
