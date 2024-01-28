@@ -14,6 +14,24 @@
 
 [쿠링 |  앱스토어](https://apps.apple.com/kr/app/id1609873520)
 
+### 시작하기
+
+> Information: 1.0 베타 버전 기준으로 작성되었습니다
+
+```swift
+KuringMap(
+  linkConfig: .init(host: ""),
+  libConfig: .init(host: "")
+)
+.environment(\.mapAppearance, Appearance())
+```
+
+### 주요 기능
+
+| 캠퍼스 내 주요 장소 | 검색 기능 | 검색 시 지도 화면 | 도서관 열람실 자석 |
+| --- | --- | --- | --- |
+| ![img1](https://github.com/ku-ring/ios-maps/assets/53814741/a6006c55-103d-4fa1-b18e-3b92b72d3acf) | ![img2](https://github.com/ku-ring/ios-maps/assets/53814741/21feda7b-2144-4d6e-a878-8b3f98244cac) | ![img3](https://github.com/ku-ring/ios-maps/assets/53814741/a1da9665-d63d-442a-979d-8f0458b4356f) | ![img4](https://github.com/ku-ring/ios-maps/assets/53814741/d1ca0530-e92a-45be-8541-8e11263d2f4b) 
+
 ## 요구 사항
 
 - Xcode 15.0 (Swift 5.9+)
@@ -29,13 +47,6 @@
 ## 기여
 
 오픈소스 프로젝트이기 때문에 누구나 참여할 수 있습니다.
-
-## 주요 기능
-
-| 캠퍼스 내 주요 장소 | 검색 기능 | 검색 시 지도 화면 | 도서관 열람실 자석 |
-| --- | --- | --- | --- |
-| ![img1](https://github.com/ku-ring/ios-maps/assets/53814741/a6006c55-103d-4fa1-b18e-3b92b72d3acf) | ![img2](https://github.com/ku-ring/ios-maps/assets/53814741/21feda7b-2144-4d6e-a878-8b3f98244cac) | ![img3](https://github.com/ku-ring/ios-maps/assets/53814741/a1da9665-d63d-442a-979d-8f0458b4356f) | ![img4](https://github.com/ku-ring/ios-maps/assets/53814741/d1ca0530-e92a-45be-8541-8e11263d2f4b) 
-
 
 ## 코드 관리자
 
