@@ -52,10 +52,18 @@ public struct KuringMap: View {
     
     public struct LinkConfiguration {
         let host: String
+        
+        public init(host: String = "") {
+            self.host = host
+        }
     }
     
     public struct LibraryConfiguration {
         let host: String
+        
+        public init(host: String = "") {
+            self.host = host
+        }
     }
 }
 
