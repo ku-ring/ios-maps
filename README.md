@@ -1,3 +1,5 @@
+[![Hits](https://hits.seeyoufarm.com/api/count/incr/badge.svg?url=https://github.com/ku-ring/ios-maps&count_bg=%23000000&title_bg=%23555555&icon=swift.svg&icon_color=%23FFFFFF&title=%EC%A1%B0%ED%9A%8C%EC%88%98&edge_flat=true)](https://hits.seeyoufarm.com)
+
 # package-kuring-maps
 
 쿠링 지도 스위프트 패키지
