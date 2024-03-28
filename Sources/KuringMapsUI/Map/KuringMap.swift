@@ -33,7 +33,10 @@ public struct KuringMap: View {
         ZStack() {
             CampusMapView()
             
-            BottomSheetView(isOpen: $isOpen, maxHeight: UIScreen.main.bounds.height * 0.8) {
+            BottomSheetView(
+                isOpen: $isOpen,
+                maxHeight: UIScreen.main.bounds.height * 0.8
+            ) {
                 BottomContentView(isOpen: $isOpen)
             }
             .shadow(radius: 4)
@@ -70,10 +73,28 @@ public struct KuringMap: View {
 
 struct KuringMap_Previews: PreviewProvider {
     static var previews: some View {
-        KuringMap(
-            linkConfig: .init(host: ""),
-            libConfig: .init(host: "")
-        )
-        .environment(\.mapAppearance, Appearance())
+        TabView {
+            KuringMap(
+                linkConfig: .init(host: ""),
+                libConfig: .init(host: "")
+            )
+            .environment(
+                \.mapAppearance,
+                 Appearance(
+                    tint: .red,
+                    primary: .orange,
+                    secondary: .yellow,
+                    background: .green,
+                    secondaryBackground: .blue,
+                    link: .purple,
+                    body: .body,
+                    title: .title,
+                    subtitle: .subheadline,
+                    footnote: .footnote,
+                    caption: .caption
+                 )
+            )
+            .tabItem { Text("maps") }
+        }
     }
 }

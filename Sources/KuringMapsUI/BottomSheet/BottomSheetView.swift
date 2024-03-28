@@ -11,11 +11,12 @@ fileprivate enum Constants {
     static let indicatorHeight: CGFloat = 6
     static let indicatorWidth: CGFloat = 60
     static let snapRatio: CGFloat = 0.25
-    static let minHeightRatio: CGFloat = 0.45
+    static let minHeightRatio: CGFloat = 0.575
 }
 
 
 struct BottomSheetView<Content: View>: View {
+    @Environment(\.mapAppearance) var appearance
     @Binding var isOpen: Bool
 
     let maxHeight: CGFloat
@@ -75,8 +76,8 @@ struct BottomSheetView<Content: View>: View {
                     )
                     .font(.caption)
                 }
-                .font(.footnote)
-                .foregroundColor(.secondary)
+                .font(appearance.footnote)
+                .foregroundColor(appearance.secondary)
                 .padding(.horizontal)
                 
                 // bottom sheet
@@ -85,8 +86,12 @@ struct BottomSheetView<Content: View>: View {
                         .padding()
                     self.content
                 }
-                .frame(width: geometry.size.width, height: self.maxHeight, alignment: .top)
-                .background(Color(.systemBackground))
+                .frame(
+                    width: geometry.size.width,
+                    height: self.maxHeight,
+                    alignment: .top
+                )
+                .background(appearance.background)
                 .cornerRadius(Constants.radius)
             }
             .frame(height: geometry.size.height, alignment: .bottom)
@@ -119,7 +124,22 @@ struct BottomSheetView_Previews: PreviewProvider {
             }
         }
         .edgesIgnoringSafeArea(.all)
-        .environment(\.mapAppearance, Appearance())
+        .environment(
+            \.mapAppearance,
+             Appearance(
+                tint: .red,
+                primary: .orange,
+                secondary: .yellow,
+                background: .green,
+                secondaryBackground: .blue,
+                link: .purple,
+                body: .body,
+                title: .title,
+                subtitle: .subheadline,
+                footnote: .footnote,
+                caption: .caption
+             )
+        )
         .environmentObject(PlaceService())
     }
 }

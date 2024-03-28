@@ -51,6 +51,13 @@ public class KonkukLibraryLink {
             public let id: Int
             public let name: String
             public let sortOrder: Int
+            
+            // MARK: - @_spi(Tests)
+            @_spi(Tests) public init(id: Int, name: String, sortOrder: Int) {
+                self.id = id
+                self.name = name
+                self.sortOrder = sortOrder
+            }
         }
         
         public struct Seats: Decodable, Equatable {
@@ -58,9 +65,25 @@ public class KonkukLibraryLink {
             public let occupied: Int
             public let waiting: Int
             public let available: Int
+            
+            // MARK: - @_spi(Tests)
+            @_spi(Tests) public init(total: Int, occupied: Int, waiting: Int, available: Int) {
+                self.total = total
+                self.occupied = occupied
+                self.waiting = waiting
+                self.available = available
+            }
+        }
+        
+        // MARK: - @_spi(Tests)
+        @_spi(Tests) public init(id: Int, name: String, roomType: RoomType, awaitable: Bool, isChargeable: Bool, unableMessage: String?, seats: Seats) {
+            self.id = id
+            self.name = name
+            self.roomType = roomType
+            self.awaitable = awaitable
+            self.isChargeable = isChargeable
+            self.unableMessage = unableMessage
+            self.seats = seats
         }
     }
 }
-
-
-

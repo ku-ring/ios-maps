@@ -6,6 +6,8 @@
 import SwiftUI
 
 struct LibraryCircularButton: View {
+    @Environment(\.mapAppearance) var appearance
+    
     var body: some View {
         VStack {
             Image.icon(named: "area.library.light")!
@@ -14,16 +16,15 @@ struct LibraryCircularButton: View {
                 .frame(width: 32, height: 32)
                 .clipShape(.circle)
                 .padding(4)
-//                .shadow(radius: 0)
                 .background {
-                    Color.white
+                    appearance.background
                         .clipShape(.circle)
                 }
                 .padding(2)
 
             Text("잔여좌석 보기")
-                .font(.footnote)
-                .foregroundStyle(.secondary)
+                .font(appearance.footnote)
+                .foregroundStyle(appearance.secondary)
         }
     }
 }

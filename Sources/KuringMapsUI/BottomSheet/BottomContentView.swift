@@ -25,6 +25,7 @@ struct BottomContentView: View {
                             .aspectRatio(contentMode: .fit)
                             .frame(width: 90, height: 90)
                             .clipped()
+                            .foregroundStyle(appearance.secondary)
                     }
                     
                     VStack(spacing: 4) {
@@ -129,6 +130,9 @@ struct BottomContentView: View {
                         }
                     }
                 }
+                
+                Spacer()
+                    .frame(height: 64)
             }
             .padding(.horizontal, 20)
         }
