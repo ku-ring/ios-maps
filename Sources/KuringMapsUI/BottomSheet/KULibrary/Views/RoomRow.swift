@@ -74,75 +74,216 @@ struct RoomRow: View {
 }
 
 #Preview {
-    LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())]) {
-        RoomRow(
-            room: .init(
-                id: 0,
-                name: "제 1 열람실",
-                roomType: .init(
+    ScrollView {
+        LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())]) {
+            RoomRow(
+                room: .init(
                     id: 0,
-                    name: "type_name",
-                    sortOrder: 1
-                ),
-                awaitable: true,
-                isChargeable: true,
-                unableMessage: "unabledMessage",
-                seats: .init(
-                    total: 300,
-                    occupied: 100,
-                    waiting: 200,
-                    available: 50
+                    name: "제 1 열람실",
+                    roomType: .init(
+                        id: 0,
+                        name: "type_name",
+                        sortOrder: 1
+                    ),
+                    awaitable: true,
+                    isChargeable: true,
+                    unableMessage: "unabledMessage",
+                    seats: .init(
+                        total: 300,
+                        occupied: 100,
+                        waiting: 200,
+                        available: 50
+                    )
                 )
             )
-        )
-        .listRowSeparator(.hidden)
-        .listRowInsets(.init(top: 0, leading: 0, bottom: 0, trailing: 0))
-        
-        RoomRow(
-            room: .init(
-                id: 0,
-                name: "제 2 열람실",
-                roomType: .init(
+            .listRowSeparator(.hidden)
+            .listRowInsets(.init(top: 0, leading: 0, bottom: 0, trailing: 0))
+            
+            RoomRow(
+                room: .init(
                     id: 0,
-                    name: "type_name",
-                    sortOrder: 1
-                ),
-                awaitable: true,
-                isChargeable: true,
-                unableMessage: nil,
-                seats: .init(
-                    total: 300,
-                    occupied: 100,
-                    waiting: 200,
-                    available: 50
+                    name: "제 2 열람실",
+                    roomType: .init(
+                        id: 0,
+                        name: "type_name",
+                        sortOrder: 1
+                    ),
+                    awaitable: true,
+                    isChargeable: true,
+                    unableMessage: nil,
+                    seats: .init(
+                        total: 300,
+                        occupied: 100,
+                        waiting: 200,
+                        available: 50
+                    )
                 )
             )
-        )
-        .listRowSeparator(.hidden)
-        .listRowInsets(.init(top: 0, leading: 0, bottom: 0, trailing: 0))
-        
-        RoomRow(
-            room: .init(
-                id: 0,
-                name: "제 3 열람실",
-                roomType: .init(
+            .listRowSeparator(.hidden)
+            .listRowInsets(.init(top: 0, leading: 0, bottom: 0, trailing: 0))
+            
+            RoomRow(
+                room: .init(
                     id: 0,
-                    name: "type_name",
-                    sortOrder: 1
-                ),
-                awaitable: true,
-                isChargeable: true,
-                unableMessage: nil,
-                seats: .init(
-                    total: 300,
-                    occupied: 100,
-                    waiting: 200,
-                    available: 0
+                    name: "제 3 열람실",
+                    roomType: .init(
+                        id: 0,
+                        name: "type_name",
+                        sortOrder: 1
+                    ),
+                    awaitable: true,
+                    isChargeable: true,
+                    unableMessage: nil,
+                    seats: .init(
+                        total: 300,
+                        occupied: 100,
+                        waiting: 200,
+                        available: 0
+                    )
                 )
             )
-        )
-        .listRowSeparator(.hidden)
-        .listRowInsets(.init(top: 0, leading: 0, bottom: 0, trailing: 0))
+            .listRowSeparator(.hidden)
+            .listRowInsets(.init(top: 0, leading: 0, bottom: 0, trailing: 0))
+            
+            RoomRow(
+                room: .init(
+                    id: 0,
+                    name: "제 4 열람실",
+                    roomType: .init(
+                        id: 0,
+                        name: "type_name",
+                        sortOrder: 1
+                    ),
+                    awaitable: true,
+                    isChargeable: true,
+                    unableMessage: nil,
+                    seats: .init(
+                        total: 300,
+                        occupied: 100,
+                        waiting: 200,
+                        available: 0
+                    )
+                )
+            )
+            .listRowSeparator(.hidden)
+            .listRowInsets(.init(top: 0, leading: 0, bottom: 0, trailing: 0))
+            
+            RoomRow(
+                room: .init(
+                    id: 0,
+                    name: "제 5 열람실",
+                    roomType: .init(
+                        id: 0,
+                        name: "type_name",
+                        sortOrder: 1
+                    ),
+                    awaitable: true,
+                    isChargeable: true,
+                    unableMessage: nil,
+                    seats: .init(
+                        total: 300,
+                        occupied: 100,
+                        waiting: 200,
+                        available: 0
+                    )
+                )
+            )
+            .listRowSeparator(.hidden)
+            .listRowInsets(.init(top: 0, leading: 0, bottom: 0, trailing: 0))
+            
+            RoomRow(
+                room: .init(
+                    id: 0,
+                    name: "제 6 열람실",
+                    roomType: .init(
+                        id: 0,
+                        name: "type_name",
+                        sortOrder: 1
+                    ),
+                    awaitable: true,
+                    isChargeable: true,
+                    unableMessage: nil,
+                    seats: .init(
+                        total: 300,
+                        occupied: 100,
+                        waiting: 200,
+                        available: 0
+                    )
+                )
+            )
+            .listRowSeparator(.hidden)
+            .listRowInsets(.init(top: 0, leading: 0, bottom: 0, trailing: 0))
+            
+            RoomRow(
+                room: .init(
+                    id: 0,
+                    name: "제 7 열람실",
+                    roomType: .init(
+                        id: 0,
+                        name: "type_name",
+                        sortOrder: 1
+                    ),
+                    awaitable: true,
+                    isChargeable: true,
+                    unableMessage: nil,
+                    seats: .init(
+                        total: 300,
+                        occupied: 100,
+                        waiting: 200,
+                        available: 0
+                    )
+                )
+            )
+            .listRowSeparator(.hidden)
+            .listRowInsets(.init(top: 0, leading: 0, bottom: 0, trailing: 0))
+            
+            RoomRow(
+                room: .init(
+                    id: 0,
+                    name: "제 8 열람실",
+                    roomType: .init(
+                        id: 0,
+                        name: "type_name",
+                        sortOrder: 1
+                    ),
+                    awaitable: true,
+                    isChargeable: true,
+                    unableMessage: nil,
+                    seats: .init(
+                        total: 300,
+                        occupied: 100,
+                        waiting: 200,
+                        available: 0
+                    )
+                )
+            )
+            .listRowSeparator(.hidden)
+            .listRowInsets(.init(top: 0, leading: 0, bottom: 0, trailing: 0))
+            
+            RoomRow(
+                room: .init(
+                    id: 0,
+                    name: "제 9 열람실",
+                    roomType: .init(
+                        id: 0,
+                        name: "type_name",
+                        sortOrder: 1
+                    ),
+                    awaitable: true,
+                    isChargeable: true,
+                    unableMessage: nil,
+                    seats: .init(
+                        total: 300,
+                        occupied: 100,
+                        waiting: 200,
+                        available: 0
+                    )
+                )
+            )
+            .listRowSeparator(.hidden)
+            .listRowInsets(.init(top: 0, leading: 0, bottom: 0, trailing: 0))
+        }
+        .listStyle(.plain)
     }
-    .listStyle(.plain)
+    
 }
