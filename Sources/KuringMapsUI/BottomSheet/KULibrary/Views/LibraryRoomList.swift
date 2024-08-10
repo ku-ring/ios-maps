@@ -13,12 +13,17 @@ struct LibraryRoomList: View {
     private let columns = [GridItem(.flexible()), GridItem(.flexible())]
     
     var body: some View {
-        LazyVGrid(columns: columns) {
-            ForEach(konkukLibrary.rooms) { room in
-                RoomRow(room: room)
+        VStack {
+            Text("열람실")
+            
+            LazyVGrid(columns: columns) {
+                ForEach(konkukLibrary.rooms) { room in
+                    RoomRow(room: room)
+                }
             }
+            .onAppear { konkukLibrary.send(.onAppear) }
         }
-        .onAppear { konkukLibrary.send(.onAppear) }
+
     }
     
     var oldView: some View {
