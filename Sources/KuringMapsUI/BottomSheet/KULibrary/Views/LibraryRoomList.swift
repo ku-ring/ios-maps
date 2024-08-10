@@ -14,19 +14,40 @@ struct LibraryRoomList: View {
     private let columns = [GridItem(.flexible()), GridItem(.flexible())]
     
     var body: some View {
-        VStack {
+        Group {
             infoView
-            
-            LazyVGrid(columns: columns) {
-                ForEach(konkukLibrary.rooms) { room in
-                    RoomRow(room: room)
+                .padding(.top, 18)
+            switch konkukLibrary.loadingState {
+            case .succeeded:
+                ScrollView {
+                    LazyVGrid(columns: columns) {
+                        ForEach(konkukLibrary.rooms) { room in
+                            RoomRow(room: room)
+                        }
+                    }
                 }
+                
+            case .loading, .none:
+                VStack {
+                    Spacer()
+                    ProgressView()
+                    Spacer()
+                }
+                
+            case .failed:
+                VStack {
+                    Spacer()
+                    Text("업데이트 실패")
+                        .font(appearance.subtitle)
+                        .foregroundStyle(.red)
+                    Spacer()
+                }
+                
             }
             
             Spacer()
         }
         .onAppear { konkukLibrary.send(.onAppear) }
-        .padding(.top, 18)
         .navigationBarBackButtonHidden(true)
         .toolbar {
             ToolbarItem(placement: .topBarLeading) {
@@ -49,8 +70,6 @@ struct LibraryRoomList: View {
                 Text(
                      """
                      도서관 잔여좌석을 확인할 수 있어요.
-                     열람실 예약하러가기 버튼을 누르면
-                     도서관 앱으로 이동해요.
                      """
                 )
                 .font(appearance.body)
