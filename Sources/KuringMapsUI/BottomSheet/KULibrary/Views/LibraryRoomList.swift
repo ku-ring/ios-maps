@@ -14,17 +14,41 @@ struct LibraryRoomList: View {
     
     var body: some View {
         VStack {
-            oldView
+            infoView
             
             LazyVGrid(columns: columns) {
                 ForEach(konkukLibrary.rooms) { room in
                     RoomRow(room: room)
                 }
             }
-            .background(.red)
-            .onAppear { konkukLibrary.send(.onAppear) }
+            
+            Spacer()
         }
-
+        .onAppear { konkukLibrary.send(.onAppear) }
+        .padding(.top, 18)
+    }
+    
+    var infoView: some View {
+        HStack {
+            VStack(alignment: .leading, spacing: 8) {
+                Text("도서관 잔여좌석")
+                    .font(.system(size: 24))
+                    .fontWeight(.bold)
+                
+                Text(
+                     """
+                     도서관 잔여좌석을 확인할 수 있어요.
+                     열람실 예약하러가기 버튼을 누르면
+                     도서관 앱으로 이동해요.
+                     """
+                )
+                .font(appearance.body)
+                .foregroundStyle(.gray)
+            }
+            
+            Spacer()
+        }
+        .padding(.leading, 20)
     }
     
     var oldView: some View {

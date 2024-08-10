@@ -1,0 +1,23 @@
+{
+  "pins" : [
+    {
+      "identity" : "swiftformat",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/nicklockwood/SwiftFormat",
+      "state" : {
+        "revision" : "d6309f7440889427426143b4a0b100b959d3f3e6",
+        "version" : "0.54.3"
+      }
+    },
+    {
+      "identity" : "the-satellite",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/ku-ring/the-satellite",
+      "state" : {
+        "branch" : "main",
+        "revision" : "66bfb1c8d3ae2848a67d0e75ce9e4e782645daf2"
+      }
+    }
+  ],
+  "version" : 2
+}

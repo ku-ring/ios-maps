@@ -17,6 +17,8 @@ public struct Appearance {
     
     public let secondaryBackground: Color
     
+    public let gray100: Color
+    
     public let link: Color
     
     public let body: Font
@@ -35,6 +37,7 @@ public struct Appearance {
         secondary: Color = Color.secondary,
         background: Color = Color(.systemBackground),
         secondaryBackground: Color = Color(.secondarySystemBackground),
+        gray100: Color = Color(.gray),
         link: Color = Color(uiColor: .link),
         body: Font = .body,
         title: Font = .headline,
@@ -47,6 +50,7 @@ public struct Appearance {
         self.secondary = secondary
         self.background = background
         self.secondaryBackground = secondaryBackground
+        self.gray100 = gray100
         self.link = link
         self.body = body
         self.title = title

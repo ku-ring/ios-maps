@@ -9,6 +9,8 @@ import SwiftUI
 struct RoomRow: View {
     @Environment(\.mapAppearance) var appearance
     
+    @Environment(\.colorScheme) var colorScheme
+    
     let room: KonkukLibraryLink.Room
     
     var body: some View {
@@ -24,7 +26,7 @@ struct RoomRow: View {
                         
                     Text("\(room.seats.occupied) / \(room.seats.total)")
                         .font(appearance.caption)
-                        .foregroundStyle(.gray)
+                        .foregroundStyle(appearance.gray100)
                 }
             }
             
