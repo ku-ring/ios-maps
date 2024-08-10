@@ -12,6 +12,28 @@ struct RoomRow: View {
     let room: KonkukLibraryLink.Room
     
     var body: some View {
+        VStack(spacing: 12) {
+            ZStack {
+                CircularProgressView(room: room)
+                    .frame(width: 108, height: 108)
+                
+                VStack {
+                    Text("\(room.seats.available)")
+                        .font(.system(size: 24))
+                        .foregroundStyle(appearance.primary)
+                        
+                    Text("\(room.seats.occupied) / \(room.seats.total)")
+                        .font(appearance.caption)
+                        .foregroundStyle(.gray)
+                }
+            }
+            
+            Text(room.name)
+                .font(appearance.body)
+        }
+    }
+    
+    var oldView: some View {
         HStack {
             Text(room.name)
                 .font(.system(size: 20))

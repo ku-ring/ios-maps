@@ -10,7 +10,18 @@ struct LibraryRoomList: View {
     @Environment(\.mapAppearance) var appearance
     @StateObject private var konkukLibrary = KonkukLibrary()
     
+    private let columns = [GridItem(.flexible()), GridItem(.flexible())]
+    
     var body: some View {
+        LazyVGrid(columns: columns) {
+            ForEach(konkukLibrary.rooms) { room in
+                RoomRow(room: room)
+            }
+        }
+        .padding()
+    }
+    
+    var oldView: some View {
         VStack {
             HStack {
                 Text("열람실")
