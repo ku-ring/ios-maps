@@ -39,14 +39,6 @@ public struct KuringMap: View {
                 } label: {
                     libraryCapsule
                 }
-                
-    //            BottomSheetView(
-    //                isOpen: $isOpen,
-    //                maxHeight: UIScreen.main.bounds.height * 0.8
-    //            ) {
-    //                BottomContentView(isOpen: $isOpen)
-    //            }
-    //            .shadow(radius: 4)
             }
             .ignoresSafeArea(edges: .top)
             .environmentObject(placeService)

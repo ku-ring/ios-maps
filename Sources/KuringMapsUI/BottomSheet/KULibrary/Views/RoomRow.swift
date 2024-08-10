@@ -24,7 +24,7 @@ struct RoomRow: View {
                         
                     Text("\(room.seats.occupied) / \(room.seats.total)")
                         .font(appearance.caption)
-                        .foregroundStyle(appearance.gray100)
+                        .foregroundStyle(.gray)
                 }
             }
             

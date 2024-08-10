@@ -9,6 +9,7 @@ import SwiftUI
 @_spi(Tests) import KuringMapsLink
 
 struct CircularProgressView: View {
+    @Environment(\.mapAppearance) var appearance
     
     let room: KonkukLibraryLink.Room
     
@@ -18,7 +19,7 @@ struct CircularProgressView: View {
         return ZStack {
             Circle()
                 .stroke(
-                    Color.gray,
+                    appearance.gray100,
                     lineWidth: 13
                 )
             

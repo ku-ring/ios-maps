@@ -20,11 +20,9 @@ struct LibraryRoomList: View {
             
             switch konkukLibrary.loadingState {
             case .succeeded:
-                ScrollView {
-                    LazyVGrid(columns: columns) {
-                        ForEach(konkukLibrary.rooms) { room in
-                            RoomRow(room: room)
-                        }
+                LazyVGrid(columns: columns) {
+                    ForEach(konkukLibrary.rooms) { room in
+                        RoomRow(room: room)
                     }
                 }
                 
@@ -42,9 +40,9 @@ struct LibraryRoomList: View {
             }
             
         }
+        .background(appearance.bg)
         .onAppear { konkukLibrary.send(.onAppear) }
         .navigationBarBackButtonHidden(true)
-        .navigationTitle("\(konkukLibrary.loadingState)")
         .toolbar {
             ToolbarItem(placement: .topBarLeading) {
                 Image(systemName: "chevron.left")
@@ -62,13 +60,9 @@ struct LibraryRoomList: View {
                     .font(.system(size: 24))
                     .fontWeight(.bold)
                 
-                Text(
-                     """
-                     도서관 잔여좌석을 확인할 수 있어요.
-                     """
-                )
-                .font(appearance.body)
-                .foregroundStyle(.gray)
+                Text("도서관 잔여좌석을 확인할 수 있어요.")
+                    .font(appearance.body)
+                    .foregroundStyle(.gray)
             }
             
             Spacer()
