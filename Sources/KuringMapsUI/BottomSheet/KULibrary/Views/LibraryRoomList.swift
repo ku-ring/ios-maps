@@ -44,6 +44,7 @@ struct LibraryRoomList: View {
         }
         .onAppear { konkukLibrary.send(.onAppear) }
         .navigationBarBackButtonHidden(true)
+        .navigationTitle("\(konkukLibrary.loadingState)")
         .toolbar {
             ToolbarItem(placement: .topBarLeading) {
                 Image(systemName: "chevron.left")
