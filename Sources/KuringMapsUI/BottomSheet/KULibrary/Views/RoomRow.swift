@@ -34,41 +34,6 @@ struct RoomRow: View {
         }
         .padding(.bottom, 32)
     }
-    
-    var oldView: some View {
-        HStack {
-            Text(room.name)
-                .font(.system(size: 20))
-                .foregroundStyle(appearance.primary)
-                .padding(.vertical, 20)
-            
-            Spacer()
-            
-            if room.unableMessage != nil {
-                Text("지금은 운영하지 않아요")
-                    .font(appearance.subtitle)
-                    .foregroundStyle(appearance.secondary)
-            } else {
-                VStack(alignment: .trailing) {
-                    if room.seats.available == .zero {
-                        HStack(spacing: 6) {
-                            Image(systemName: "exclamationmark.circle.fill")
-                            
-                            Text("자리가 꽉 찼어요")
-                        }
-                        .foregroundStyle(appearance.primary)
-                    } else {
-                        Text("\(room.seats.available) 좌석 남았어요")
-                            .foregroundStyle(appearance.primary)
-                    }
-                    
-                    Text("\(room.seats.occupied)/\(room.seats.total)")
-                        .foregroundStyle(appearance.secondary)
-                }
-                .font(appearance.subtitle)
-            }
-        }
-    }
 }
 
 #Preview {
