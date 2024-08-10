@@ -14,7 +14,7 @@ public class KonkukLibraryLink {
     }
     
     public func fetchRooms() async throws -> [Room] {
-        let repsonse: KonkukLibraryLink.Response<[Room]> = try await satellite.response(
+        let response: KonkukLibraryLink.Response<[Room]> = try await satellite.response(
             for: "seat-rooms",
             httpMethod: .get,
             queryItems: [
@@ -23,7 +23,7 @@ public class KonkukLibraryLink {
                 .init(name: "branchGroupId", value: "1"),
             ]
         )
-        return repsonse.data.list
+        return response.data.list
     }
 
     struct Response<DataItem: Decodable>: Decodable {
