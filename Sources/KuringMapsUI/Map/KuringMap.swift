@@ -34,11 +34,7 @@ public struct KuringMap: View {
             ZStack() {
                 CampusMapView()
                 
-                Button {
-                    path.append(.libraryRoom)
-                } label: {
-                    libraryCapsule
-                }
+                libraryCapsule
             }
             .ignoresSafeArea(edges: .top)
             .environmentObject(placeService)
@@ -56,12 +52,16 @@ public struct KuringMap: View {
             Spacer()
             HStack {
                 Spacer()
-                HStack(spacing: 6) {
-                    Image(.union)
-                    
-                    Text("열람실 좌석 현황")
-                        .font(.system(size: 12))
-                        .foregroundStyle(appearance.primary)
+                Button {
+                    path.append(.libraryRoom)
+                } label: {
+                    HStack(spacing: 6)  {
+                        Image(.union)
+                        
+                        Text("열람실 좌석 현황")
+                            .font(.system(size: 12))
+                            .foregroundStyle(appearance.primary)
+                    }
                 }
                 .padding(12)
                 .background(appearance.background)
