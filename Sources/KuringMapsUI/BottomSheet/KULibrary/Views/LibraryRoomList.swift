@@ -8,6 +8,7 @@ import KuringMapsLink
 
 struct LibraryRoomList: View {
     @Environment(\.mapAppearance) var appearance
+    @Environment(\.dismiss) var dismiss
     @StateObject private var konkukLibrary = KonkukLibrary()
     
     private let columns = [GridItem(.flexible()), GridItem(.flexible())]
@@ -26,6 +27,16 @@ struct LibraryRoomList: View {
         }
         .onAppear { konkukLibrary.send(.onAppear) }
         .padding(.top, 18)
+        .navigationBarBackButtonHidden(true)
+        .toolbar {
+            ToolbarItem(placement: .topBarLeading) {
+                Image(systemName: "chevron.left")
+                    .onTapGesture {
+                        dismiss()
+                    }
+                
+            }
+        }
     }
     
     var infoView: some View {

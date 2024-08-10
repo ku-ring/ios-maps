@@ -35,7 +35,6 @@ public struct KuringMap: View {
                 CampusMapView()
                 
                 Button {
-                    print("AAAA")
                     path.append(.libraryRoom)
                 } label: {
                     libraryCapsule
@@ -49,7 +48,7 @@ public struct KuringMap: View {
     //            }
     //            .shadow(radius: 4)
             }
-            .ignoresSafeArea()
+            .ignoresSafeArea(edges: .top)
             .environmentObject(placeService)
             .navigationDestination(for: NavigationPath.self) { path in
                 switch path {
