@@ -14,7 +14,7 @@ struct LibraryRoomList: View {
     private let columns = [GridItem(.flexible()), GridItem(.flexible())]
     
     var body: some View {
-        Group {
+        VStack {
             infoView
                 .padding(.top, 18)
             
@@ -29,23 +29,18 @@ struct LibraryRoomList: View {
                 }
                 
             case .loading, .none:
-                VStack {
-                    Spacer()
-                    ProgressView()
-                    Spacer()
-                }
+                Spacer()
+                ProgressView()
+                Spacer()
                 
             case .failed:
-                VStack {
-                    Spacer()
-                    Text("업데이트 실패")
-                        .font(appearance.subtitle)
-                        .foregroundStyle(.red)
-                    Spacer()
-                }
+                Spacer()
+                Text("업데이트 실패")
+                    .font(appearance.subtitle)
+                    .foregroundStyle(.red)
+                Spacer()
             }
             
-            Spacer()
         }
         .onAppear { konkukLibrary.send(.onAppear) }
         .navigationBarBackButtonHidden(true)
