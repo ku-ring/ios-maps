@@ -17,6 +17,7 @@ struct LibraryRoomList: View {
         Group {
             infoView
                 .padding(.top, 18)
+            
             switch konkukLibrary.loadingState {
             case .succeeded:
                 ScrollView {
@@ -42,7 +43,6 @@ struct LibraryRoomList: View {
                         .foregroundStyle(.red)
                     Spacer()
                 }
-                
             }
             
             Spacer()
@@ -55,7 +55,6 @@ struct LibraryRoomList: View {
                     .onTapGesture {
                         dismiss()
                     }
-                
             }
         }
     }
