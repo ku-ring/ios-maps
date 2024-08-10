@@ -17,7 +17,7 @@ struct BottomContentView: View {
     
     var body: some View {
         ScrollView(.vertical, showsIndicators: false) {
-            LazyVStack(spacing: 12) {
+            VStack(spacing: 12) {
                 if !isOpen {
                     if let icon = Image.icon(named: "museum.colored") {
                         icon

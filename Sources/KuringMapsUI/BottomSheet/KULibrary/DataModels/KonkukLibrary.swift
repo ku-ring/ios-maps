@@ -28,15 +28,15 @@ class KonkukLibrary: ObservableObject {
     
     func fetchRooms() {
         Task {
+            resetLoadingState()
+            
             do {
                 self.rooms = try await link.fetchRooms()
                 self.loadingState = .succeeded
                 try await Task.sleep(nanoseconds: 1_000_000)
-                self.resetLoadingState()
             } catch {
                 print(error.localizedDescription)
                 self.loadingState = .failed
-                self.resetLoadingState()
             }
             
         }
