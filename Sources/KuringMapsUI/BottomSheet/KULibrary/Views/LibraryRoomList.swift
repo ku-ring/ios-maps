@@ -16,13 +16,13 @@ struct LibraryRoomList: View {
         VStack {
             oldView
             
-//            LazyVGrid(columns: columns) {
-//                ForEach(konkukLibrary.rooms) { room in
-//                    RoomRow(room: room)
-//                }
-//            }
-//            .background(.red)
-//            .onAppear { konkukLibrary.send(.onAppear) }
+            LazyVGrid(columns: columns) {
+                ForEach(konkukLibrary.rooms) { room in
+                    RoomRow(room: room)
+                }
+            }
+            .background(.red)
+            .onAppear { konkukLibrary.send(.onAppear) }
         }
 
     }
