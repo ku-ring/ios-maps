@@ -30,19 +30,50 @@ public struct KuringMap: View {
     @State private var isOpen: Bool = false
     
     public var body: some View {
-        ZStack() {
-            CampusMapView()
-            
-            BottomSheetView(
-                isOpen: $isOpen,
-                maxHeight: UIScreen.main.bounds.height * 0.8
-            ) {
-                BottomContentView(isOpen: $isOpen)
+        NavigationStack {
+            ZStack() {
+                CampusMapView()
+                
+                Button {
+                    
+                } label: {
+                    libraryCapsule
+                }
+                
+                
+    //            BottomSheetView(
+    //                isOpen: $isOpen,
+    //                maxHeight: UIScreen.main.bounds.height * 0.8
+    //            ) {
+    //                BottomContentView(isOpen: $isOpen)
+    //            }
+    //            .shadow(radius: 4)
             }
-            .shadow(radius: 4)
+            .ignoresSafeArea()
+            .environmentObject(placeService)
         }
-        .ignoresSafeArea()
-        .environmentObject(PlaceService())
+    }
+    
+    private var libraryCapsule: some View {
+        VStack {
+            Spacer()
+            HStack {
+                Spacer()
+                HStack(spacing: 6) {
+                    Image(.union)
+                    
+                    Text("열람실 좌석 현황")
+                        .font(.system(size: 12))
+                        .foregroundStyle(appearance.primary)
+                }
+                .padding(12)
+                .background(appearance.background)
+                .clipShape(.capsule)
+            }
+        }
+        .padding(.trailing, 20)
+        .padding(.bottom, 24)
+        .shadow(radius: 4)
     }
     
     public init(
