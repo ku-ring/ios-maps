@@ -27,19 +27,19 @@ public struct KuringMap: View {
     @StateObject private var placeService = PlaceService()
     @Environment(\.mapAppearance) var appearance
     
-    @State private var isOpen: Bool = false
+    @State private var path: [NavigationPath] = []
     
     public var body: some View {
-        NavigationStack {
+        NavigationStack(path: $path) {
             ZStack() {
                 CampusMapView()
                 
                 Button {
-                    
+                    print("AAAA")
+                    path.append(.libraryRoom)
                 } label: {
                     libraryCapsule
                 }
-                
                 
     //            BottomSheetView(
     //                isOpen: $isOpen,
@@ -51,6 +51,12 @@ public struct KuringMap: View {
             }
             .ignoresSafeArea()
             .environmentObject(placeService)
+            .navigationDestination(for: NavigationPath.self) { path in
+                switch path {
+                case .libraryRoom:
+                    LibraryRoomList()
+                }
+            }
         }
     }
     
@@ -99,8 +105,12 @@ public struct KuringMap: View {
             self.host = host
         }
     }
+    
+    enum NavigationPath {
+        /// 도서관 잔여 좌석
+        case libraryRoom
+    }
 }
-
 
 struct KuringMap_Previews: PreviewProvider {
     static var previews: some View {
