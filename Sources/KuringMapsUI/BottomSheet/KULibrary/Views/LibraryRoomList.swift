@@ -18,7 +18,7 @@ struct LibraryRoomList: View {
                 RoomRow(room: room)
             }
         }
-        .padding()
+        .onAppear { konkukLibrary.send(.onAppear) }
     }
     
     var oldView: some View {
