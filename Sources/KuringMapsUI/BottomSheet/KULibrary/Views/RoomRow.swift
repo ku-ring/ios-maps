@@ -9,8 +9,6 @@ import SwiftUI
 struct RoomRow: View {
     @Environment(\.mapAppearance) var appearance
     
-    @Environment(\.colorScheme) var colorScheme
-    
     let room: KonkukLibraryLink.Room
     
     var body: some View {
