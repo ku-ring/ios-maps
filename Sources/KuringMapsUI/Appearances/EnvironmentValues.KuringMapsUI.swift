@@ -6,5 +6,12 @@
 import SwiftUI
 
 extension EnvironmentValues {
-    @Entry public var mapAppearance: Appearance = Appearance()
+    public var mapAppearance: Appearance {
+        get { self[AppearanceKey.self] }
+        set { self[AppearanceKey.self] = newValue }
+    }
+}
+
+private struct AppearanceKey: EnvironmentKey {
+    static var defaultValue: Appearance = Appearance()
 }
