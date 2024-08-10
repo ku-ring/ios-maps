@@ -49,6 +49,7 @@ struct LibraryRoomList: View {
             Spacer()
         }
         .padding(.leading, 20)
+        .padding(.bottom, 32)
     }
     
     var oldView: some View {
