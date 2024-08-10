@@ -14,13 +14,14 @@ struct LibraryRoomList: View {
     
     var body: some View {
         VStack {
-            Text("열람실")
+            oldView
             
             LazyVGrid(columns: columns) {
                 ForEach(konkukLibrary.rooms) { room in
                     RoomRow(room: room)
                 }
             }
+            .background(.red)
             .onAppear { konkukLibrary.send(.onAppear) }
         }
 
