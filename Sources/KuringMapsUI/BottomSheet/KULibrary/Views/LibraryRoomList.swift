@@ -14,7 +14,7 @@ struct LibraryRoomList: View {
     private let columns = [GridItem(.flexible()), GridItem(.flexible())]
     
     var body: some View {
-        VStack {
+        ScrollView {
             infoView
                 .padding(.top, 18)
             
@@ -27,16 +27,14 @@ struct LibraryRoomList: View {
                 }
                 
             case .loading, .none:
-                Spacer()
                 ProgressView()
-                Spacer()
+                    .padding(.top, 150)
                 
             case .failed:
-                Spacer()
-                Text("업데이트 실패")
+                Text("불러오기 실패")
                     .font(appearance.subtitle)
                     .foregroundStyle(.red)
-                Spacer()
+                    .padding(.top, 150)
             }
             
         }
