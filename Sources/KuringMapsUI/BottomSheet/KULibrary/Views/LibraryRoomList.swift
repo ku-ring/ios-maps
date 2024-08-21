@@ -48,8 +48,19 @@ struct LibraryRoomList: View {
             }
             
             Spacer()
+            
+            Circle()
+                .frame(width: 46, height: 46)
+                .foregroundColor(appearance.bg)
+                .overlay {
+                    Image(.iconRefresh)
+                        .padding(11)
+                }
+                .shadow(color: .black.opacity(0.2), radius: 2, x: 0, y: 0)
+                
+            
         }
-        .padding(.leading, 20)
+        .padding(.horizontal, 20)
         .padding(.bottom, 32)
     }
     
