@@ -38,13 +38,13 @@ struct LibraryRoomList: View {
     private var infoView: some View {
         HStack {
             VStack(alignment: .leading, spacing: 8) {
-                Text("도서관 잔여좌석")
-                    .font(.system(size: 24))
-                    .fontWeight(.bold)
+                Text("도서관 열람식 잔여좌석")
+                    .font(.system(size: 24, weight: .bold))
+                    .foregroundStyle(appearance.title)
                 
                 Text("도서관 잔여좌석을 확인할 수 있어요.")
                     .font(.system(size: 15, weight: .medium))
-                    .foregroundStyle(.gray)
+                    .foregroundStyle(appearance.caption1)
             }
             
             Spacer()
@@ -55,7 +55,7 @@ struct LibraryRoomList: View {
                 .shadow(color: .black.opacity(0.2), radius: 2, x: 0, y: 0)
                 .overlay {
                     Button {
-                        
+                        konkukLibrary.send(.refreshButtonTapped)
                     } label: {
                         Image(.iconRefresh)
                             .padding(11)
