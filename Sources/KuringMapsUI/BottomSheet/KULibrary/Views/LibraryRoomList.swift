@@ -54,8 +54,12 @@ struct LibraryRoomList: View {
                 .foregroundColor(appearance.bg)
                 .shadow(color: .black.opacity(0.2), radius: 2, x: 0, y: 0)
                 .overlay {
-                    Image(.iconRefresh)
-                        .padding(11)
+                    Button {
+                        
+                    } label: {
+                        Image(.iconRefresh)
+                            .padding(11)
+                    }
                 }
                 
         }
@@ -66,14 +70,14 @@ struct LibraryRoomList: View {
     @ViewBuilder
     private var listView: some View {
         switch konkukLibrary.loadingState {
-        case .succeeded, .none:
+        case .succeeded:
             LazyVGrid(columns: columns) {
                 ForEach(konkukLibrary.rooms) { room in
                     RoomRow(room: room)
                 }
             }
             
-        case .loading:
+        case .loading, .none:
             ProgressView()
                 .padding(.top, 210)
             
