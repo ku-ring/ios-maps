@@ -19,7 +19,7 @@ struct LibraryRoomList: View {
                 .padding(.top, 18)
             
             listView
-                .padding(.horizontal, 40)
+                .padding(.horizontal, 20)
             
         }
         .background(appearance.bg)
