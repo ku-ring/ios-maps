@@ -76,25 +76,36 @@ struct LibraryRoomList: View {
     
     @ViewBuilder
     private var listView: some View {
-        switch konkukLibrary.loadingState {
-        case .succeeded:
+        if konkukLibrary.rooms.isEmpty {
+            switch konkukLibrary.loadingState {
+            case .succeeded:
+                LazyVGrid(columns: columns) {
+                    ForEach(konkukLibrary.rooms) { room in
+                        RoomRow(room: room)
+                    }
+                }
+                
+            case .loading, .none:
+                ProgressView()
+                    .padding(.top, 210)
+                
+            case .failed:
+                Text("홈페이지 사정 상,\n 잔여좌석 정보를 불러올 수 없어요.")
+                    .multilineTextAlignment(.center)
+                    .font(.system(size: 15, weight: .medium))
+                    .foregroundStyle(appearance.caption2)
+                    .padding(.top, 210)
+            }
+            
+        } else {
             LazyVGrid(columns: columns) {
                 ForEach(konkukLibrary.rooms) { room in
                     RoomRow(room: room)
                 }
             }
-            
-        case .loading, .none:
-            ProgressView()
-                .padding(.top, 210)
-            
-        case .failed:
-            Text("홈페이지 사정 상,\n 잔여좌석 정보를 불러올 수 없어요.")
-                .multilineTextAlignment(.center)
-                .font(.system(size: 15, weight: .medium))
-                .foregroundStyle(appearance.caption2)
-                .padding(.top, 210)
         }
+        
+        
     }
 }
 
