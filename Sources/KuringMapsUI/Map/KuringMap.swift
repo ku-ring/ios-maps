@@ -56,7 +56,7 @@ public struct KuringMap: View {
                     path.append(.libraryRoom)
                 } label: {
                     HStack(spacing: 6)  {
-                        Image(.union)
+                        Image(.iconLibraryBook)
                         
                         Text("열람실 좌석 현황")
                             .font(.system(size: 12))
@@ -64,7 +64,7 @@ public struct KuringMap: View {
                     }
                 }
                 .padding(12)
-                .background(appearance.background)
+                .background(appearance.bg)
                 .clipShape(.capsule)
             }
         }
@@ -110,22 +110,22 @@ struct KuringMap_Previews: PreviewProvider {
                 linkConfig: .init(host: ""),
                 libConfig: .init(host: "")
             )
-            .environment(
-                \.mapAppearance,
-                 Appearance(
-                    tint: .red,
-                    primary: .orange,
-                    secondary: .yellow,
-                    background: .green,
-                    secondaryBackground: .blue,
-                    link: .purple,
-                    body: .body,
-                    title: .title,
-                    subtitle: .subheadline,
-                    footnote: .footnote,
-                    caption: .caption
-                 )
-            )
+//            .environment(
+//                \.mapAppearance,
+//                 Appearance(
+//                    tint: .red,
+//                    primary: .orange,
+//                    secondary: .yellow,
+//                    background: .green,
+//                    secondaryBackground: .blue,
+//                    link: .purple,
+//                    body: .body,
+//                    title: .title,
+//                    subtitle: .subheadline,
+//                    footnote: .footnote,
+//                    caption: .caption
+//                 )
+//            )
             .tabItem { Text("maps") }
         }
     }

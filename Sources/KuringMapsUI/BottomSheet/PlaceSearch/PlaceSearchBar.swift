@@ -17,7 +17,7 @@ struct PlaceSearchBar: View {
         HStack(spacing: 4) {
             Image(systemName: "magnifyingglass")
                 .font(.body)
-                .foregroundColor(appearance.secondary)
+//                .foregroundColor(appearance.secondary)
             
             TextField("장소를 검색 해보세요", text: $placeService.text)
                 .focused($isSearchFocused)
@@ -34,10 +34,10 @@ struct PlaceSearchBar: View {
             }
         }
         .padding(8)
-        .background {
-            appearance.secondaryBackground
-                .cornerRadius(10)
-        }
+//        .background {
+//            appearance.secondaryBackground
+//                .cornerRadius(10)
+//        }
         .onReceive(keyboardVisibilityPublisher) { visible in
             isSearchFocused = visible
         }

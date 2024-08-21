@@ -26,7 +26,7 @@ struct CircularProgressView: View {
             Circle()
                 .trim(from: from, to: 1)
                 .stroke(
-                    Color.green,
+                    appearance.primary,
                     style: StrokeStyle(
                         lineWidth: 13,
                         lineCap: .butt

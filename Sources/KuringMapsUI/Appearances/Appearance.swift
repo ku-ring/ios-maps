@@ -6,61 +6,69 @@
 import SwiftUI
 
 public struct Appearance {
-    /// The main colors used in views provide by ``KuringMapUI``. The default is `Color(.systemBlue)`
-    public let tint: Color
+
+    public let warning: Color
     
-    public let primary: Color
+    public let borderLine: Color
     
-    public let secondary: Color
-    
-    public let background: Color
-    
-    public let secondaryBackground: Color
-    
-    public let gray100: Color
+    public let kuringLogoText: Color
     
     public let bg: Color
     
-    public let link: Color
+    public let primarySelected: Color
     
-    public let body: Font
+    public let primary: Color
     
-    public let title: Font
+    public let caption1: Color
     
-    public let subtitle: Font
+    public let caption2: Color
     
-    public let footnote: Font
+    public let body: Color
     
-    public let caption: Font
+    public let title: Color
+    
+    public let gray600: Color
+    
+    public let gray400: Color
+    
+    public let gray300: Color
+    
+    public let gray200: Color
+    
+    public let gray100: Color
     
     public init(
-        tint: Color = Color(.tintColor),
-        primary: Color = Color.primary,
-        secondary: Color = Color.secondary,
-        background: Color = Color(.systemBackground),
-        secondaryBackground: Color = Color(.secondarySystemBackground),
-        gray100: Color = Color(.gray),
-        bg: Color = Color(.systemBackground),
-        link: Color = Color(uiColor: .link),
-        body: Font = .body,
-        title: Font = .headline,
-        subtitle: Font = .subheadline,
-        footnote: Font = .footnote,
-        caption: Font = .caption
+        warning: Color = .red,
+        borderLine: Color = .gray,
+        kuringLogoText: Color = .green,
+        bg: Color = .gray.opacity(0.2),
+        primarySelected: Color = .green,
+        primary: Color = .green.opacity(0.5),
+        caption1: Color = .black.opacity(0.4),
+        caption2: Color = .black.opacity(0.2),
+        body: Color = .black,
+        title: Color = .black,
+        gray600: Color = .gray.opacity(0.6),
+        gray400: Color = .gray.opacity(0.4),
+        gray300: Color = .gray.opacity(0.3),
+        gray200: Color = .gray.opacity(0.2),
+        gray100: Color = .gray.opacity(0.1)
     ) {
-        self.tint = tint
-        self.primary = primary
-        self.secondary = secondary
-        self.background = background
-        self.secondaryBackground = secondaryBackground
-        self.gray100 = gray100
+        self.warning = warning
+        self.borderLine = borderLine
+        self.kuringLogoText = kuringLogoText
         self.bg = bg
-        self.link = link
+        self.primarySelected = primarySelected
+        self.primary = primary
+        self.caption1 = caption1
+        self.caption2 = caption2
         self.body = body
         self.title = title
-        self.subtitle = subtitle
-        self.footnote = footnote
-        self.caption = caption
+        self.gray400 = gray400
+        self.gray600 = gray600
+        self.gray100 = gray100
+        self.gray300 = gray300
+        self.gray200 = gray200
     }
 }
 

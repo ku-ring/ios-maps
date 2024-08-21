@@ -25,17 +25,17 @@ struct BottomContentView: View {
                             .aspectRatio(contentMode: .fit)
                             .frame(width: 90, height: 90)
                             .clipped()
-                            .foregroundStyle(appearance.secondary)
+//                            .foregroundStyle(appearance.secondary)
                     }
                     
                     VStack(spacing: 4) {
                         Text("환영합니다")
-                            .font(appearance.title.bold())
+//                            .font(appearance.title.bold())
                             .foregroundColor(appearance.primary)
                         
                         Text("건국대학교 캠퍼스 장소를 조회 해보세요")
-                            .font(appearance.footnote)
-                            .foregroundColor(appearance.secondary)
+//                            .font(appearance.footnote)
+//                            .foregroundColor(appearance.secondary)
                     }
                     
                     HStack {
@@ -118,13 +118,13 @@ struct BottomContentView: View {
                             } label: {
                                 HStack(spacing: 2) {
                                     Text("이용약관")
-                                        .font(appearance.caption)
+//                                        .font(appearance.caption)
                                     
                                     Image(systemName: "chevron.right")
-                                        .font(appearance.caption)
+//                                        .font(appearance.caption)
                                 }
                             }
-                            .tint(appearance.secondary)
+//                            .tint(appearance.secondary)
                             
                             Spacer()
                         }

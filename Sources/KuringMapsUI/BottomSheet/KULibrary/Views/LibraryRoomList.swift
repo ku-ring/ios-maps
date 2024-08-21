@@ -18,24 +18,8 @@ struct LibraryRoomList: View {
             infoView
                 .padding(.top, 18)
             
-            switch konkukLibrary.loadingState {
-            case .succeeded:
-                LazyVGrid(columns: columns) {
-                    ForEach(konkukLibrary.rooms) { room in
-                        RoomRow(room: room)
-                    }
-                }
-                
-            case .loading, .none:
-                ProgressView()
-                    .padding(.top, 150)
-                
-            case .failed:
-                Text("불러오기 실패")
-                    .font(appearance.subtitle)
-                    .foregroundStyle(.red)
-                    .padding(.top, 150)
-            }
+            resultView
+                .padding(.horizontal, 20)
             
         }
         .background(appearance.bg)
@@ -51,23 +35,81 @@ struct LibraryRoomList: View {
         }
     }
     
-    var infoView: some View {
+    private var infoView: some View {
         HStack {
             VStack(alignment: .leading, spacing: 8) {
-                Text("도서관 잔여좌석")
-                    .font(.system(size: 24))
-                    .fontWeight(.bold)
+                Text("도서관 열람식 잔여좌석")
+                    .font(.system(size: 24, weight: .bold))
+                    .foregroundStyle(appearance.title)
                 
                 Text("도서관 잔여좌석을 확인할 수 있어요.")
-                    .font(appearance.body)
-                    .foregroundStyle(.gray)
+                    .font(.system(size: 15, weight: .medium))
+                    .foregroundStyle(appearance.caption1)
             }
             
             Spacer()
+            
+            Circle()
+                .frame(width: 46, height: 46)
+                .foregroundColor(appearance.bg)
+                .shadow(color: .black.opacity(0.2), radius: 2, x: 0, y: 0)
+                .overlay {
+                    Button {
+                        konkukLibrary.send(.refreshButtonTapped)
+                    } label: {
+                        Image(.iconRefresh)
+                            .rotationEffect(Angle(degrees: konkukLibrary.isAnimating ? 360 : 0))
+                            .animation(
+                                .linear(duration: konkukLibrary.isAnimating ? 1 : 0)
+                                .repeatForever(autoreverses: false)
+                                .delay(konkukLibrary.isAnimating ? 0 : 1),
+                                value: konkukLibrary.isAnimating
+                            )
+                            .padding(11)
+                    }
+                }
+                
         }
-        .padding(.leading, 20)
+        .padding(.horizontal, 20)
         .padding(.bottom, 32)
     }
+    
+    @ViewBuilder
+    private var resultView: some View {
+        if konkukLibrary.rooms.isEmpty {
+            switch konkukLibrary.loadingState {
+            case .succeeded:
+                listView
+                
+            case .loading, .none:
+                ProgressView()
+                    .padding(.top, 210)
+                
+            case .failed:
+                failedView
+            }
+            
+        } else {
+            listView
+        }
+    }
+    
+    private var listView: some View {
+        LazyVGrid(columns: columns) {
+            ForEach(konkukLibrary.rooms) { room in
+                RoomRow(room: room)
+            }
+        }
+    }
+    
+    private var failedView: some View {
+        Text("홈페이지 사정 상,\n 잔여좌석 정보를 불러올 수 없어요.")
+            .multilineTextAlignment(.center)
+            .font(.system(size: 15, weight: .medium))
+            .foregroundStyle(appearance.caption2)
+            .padding(.top, 210)
+    }
+    
 }
 
 #Preview {
