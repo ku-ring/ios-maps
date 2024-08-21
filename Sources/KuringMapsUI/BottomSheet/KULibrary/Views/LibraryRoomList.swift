@@ -58,6 +58,13 @@ struct LibraryRoomList: View {
                         konkukLibrary.send(.refreshButtonTapped)
                     } label: {
                         Image(.iconRefresh)
+                            .rotationEffect(Angle(degrees: konkukLibrary.isAnimating ? 360 : 0))
+                            .animation(
+                                .linear(duration: konkukLibrary.isAnimating ? 1 : 0)
+                                .repeatForever(autoreverses: false)
+                                .delay(konkukLibrary.isAnimating ? 0 : 1),
+                                value: konkukLibrary.isAnimating
+                            )
                             .padding(11)
                     }
                 }

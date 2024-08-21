@@ -9,7 +9,18 @@ import KuringMapsLink
 @MainActor
 class KonkukLibrary: ObservableObject {
     @Published var rooms: [KonkukLibraryLink.Room] = []
-    @Published var loadingState: LoadingState = .none
+    @Published var loadingState: LoadingState = .none {
+        didSet {
+            switch loadingState {
+            case .none, .loading:
+                isAnimating = true
+            case .succeeded, .failed:
+                isAnimating = false
+            }
+        }
+    }
+    
+    @Published var isAnimating = false
     
     let link = KonkukLibraryLink()
     
