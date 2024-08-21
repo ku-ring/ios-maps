@@ -20,9 +20,9 @@ class KonkukLibrary: ObservableObject {
         }
     }
     
-    @Published var isAnimating = false
+    private(set)var isAnimating = false
     
-    let link = KonkukLibraryLink()
+    private let link = KonkukLibraryLink()
     
     enum LoadingState: Equatable {
         case none
