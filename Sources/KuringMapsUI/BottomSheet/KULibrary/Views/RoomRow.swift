@@ -19,7 +19,7 @@ struct RoomRow: View {
                 
                 VStack {
                     Text("\(room.seats.available)")
-                        .font(.system(size: 24))
+                        .font(.system(size: 24, weight: .semibold))
                         .foregroundStyle(appearance.primary)
                         
                     Text("\(room.seats.occupied) / \(room.seats.total)")
