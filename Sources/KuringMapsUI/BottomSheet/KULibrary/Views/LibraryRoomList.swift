@@ -18,24 +18,8 @@ struct LibraryRoomList: View {
             infoView
                 .padding(.top, 18)
             
-            switch konkukLibrary.loadingState {
-            case .succeeded:
-                LazyVGrid(columns: columns) {
-                    ForEach(konkukLibrary.rooms) { room in
-                        RoomRow(room: room)
-                    }
-                }
-                
-            case .loading, .none:
-                ProgressView()
-                    .padding(.top, 150)
-                
-            case .failed:
-                Text("불러오기 실패")
-                    .font(appearance.subtitle)
-                    .foregroundStyle(.red)
-                    .padding(.top, 150)
-            }
+            listView
+                .padding(.horizontal, 40)
             
         }
         .background(appearance.bg)
@@ -51,7 +35,7 @@ struct LibraryRoomList: View {
         }
     }
     
-    var infoView: some View {
+    private var infoView: some View {
         HStack {
             VStack(alignment: .leading, spacing: 8) {
                 Text("도서관 잔여좌석")
@@ -67,6 +51,28 @@ struct LibraryRoomList: View {
         }
         .padding(.leading, 20)
         .padding(.bottom, 32)
+    }
+    
+    @ViewBuilder
+    private var listView: some View {
+        switch konkukLibrary.loadingState {
+        case .succeeded, .none:
+            LazyVGrid(columns: columns) {
+                ForEach(konkukLibrary.rooms) { room in
+                    RoomRow(room: room)
+                }
+            }
+            
+        case .loading:
+            ProgressView()
+                .padding(.top, 150)
+            
+        case .failed:
+            Text("불러오기 실패")
+                .font(appearance.subtitle)
+                .foregroundStyle(.red)
+                .padding(.top, 150)
+        }
     }
 }
 
