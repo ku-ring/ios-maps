@@ -43,7 +43,7 @@ struct LibraryRoomList: View {
                     .fontWeight(.bold)
                 
                 Text("도서관 잔여좌석을 확인할 수 있어요.")
-                    .font(appearance.body)
+                    .font(.system(size: 15, weight: .medium))
                     .foregroundStyle(.gray)
             }
             
@@ -69,7 +69,7 @@ struct LibraryRoomList: View {
             
         case .failed:
             Text("불러오기 실패")
-                .font(appearance.subtitle)
+                .font(.system(size: 15, weight: .medium))
                 .foregroundStyle(.red)
                 .padding(.top, 150)
         }

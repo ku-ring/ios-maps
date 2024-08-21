@@ -14,14 +14,14 @@ struct MenuButton: View {
     var body: some View {
         Button(action: action) {
             Text(title)
-                .foregroundColor(appearance.tint)
-                .font(appearance.subtitle.bold())
+//                .foregroundColor(appearance.tint)
+//                .font(appearance.subtitle.bold())
                 .frame(maxWidth: .infinity)
                 .frame(height: 48)
-                .background {
-                    appearance.secondaryBackground
-                        .cornerRadius(10)
-                }
+//                .background {
+//                    appearance.secondaryBackground
+//                        .cornerRadius(10)
+//                }
         }
     }
 }

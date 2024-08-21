@@ -76,8 +76,8 @@ struct BottomSheetView<Content: View>: View {
                     )
                     .font(.caption)
                 }
-                .font(appearance.footnote)
-                .foregroundColor(appearance.secondary)
+//                .font(appearance.footnote)
+//                .foregroundColor(appearance.secondary)
                 .padding(.horizontal)
                 
                 // bottom sheet
@@ -91,7 +91,7 @@ struct BottomSheetView<Content: View>: View {
                     height: self.maxHeight,
                     alignment: .top
                 )
-                .background(appearance.background)
+//                .background(appearance.background)
                 .cornerRadius(Constants.radius)
             }
             .frame(height: geometry.size.height, alignment: .bottom)
@@ -124,22 +124,22 @@ struct BottomSheetView_Previews: PreviewProvider {
             }
         }
         .edgesIgnoringSafeArea(.all)
-        .environment(
-            \.mapAppearance,
-             Appearance(
-                tint: .red,
-                primary: .orange,
-                secondary: .yellow,
-                background: .green,
-                secondaryBackground: .blue,
-                link: .purple,
-                body: .body,
-                title: .title,
-                subtitle: .subheadline,
-                footnote: .footnote,
-                caption: .caption
-             )
-        )
+//        .environment(
+//            \.mapAppearance,
+//             Appearance(
+//                tint: .red,
+//                primary: .orange,
+//                secondary: .yellow,
+//                background: .green,
+//                secondaryBackground: .blue,
+//                link: .purple,
+//                body: .body,
+//                title: .title,
+//                subtitle: .subheadline,
+//                footnote: .footnote,
+//                caption: .caption
+//             )
+//        )
         .environmentObject(PlaceService())
     }
 }

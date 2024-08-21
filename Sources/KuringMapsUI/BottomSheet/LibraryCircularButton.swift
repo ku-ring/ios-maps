@@ -16,15 +16,15 @@ struct LibraryCircularButton: View {
                 .frame(width: 32, height: 32)
                 .clipShape(.circle)
                 .padding(4)
-                .background {
-                    appearance.background
-                        .clipShape(.circle)
-                }
+//                .background {
+//                    appearance.background
+//                        .clipShape(.circle)
+//                }
                 .padding(2)
 
             Text("잔여좌석 보기")
-                .font(appearance.footnote)
-                .foregroundStyle(appearance.secondary)
+//                .font(appearance.footnote)
+//                .foregroundStyle(appearance.secondary)
         }
     }
 }
