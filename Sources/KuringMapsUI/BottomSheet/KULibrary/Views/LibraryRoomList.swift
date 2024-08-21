@@ -65,13 +65,14 @@ struct LibraryRoomList: View {
             
         case .loading:
             ProgressView()
-                .padding(.top, 150)
+                .padding(.top, 210)
             
         case .failed:
-            Text("불러오기 실패")
+            Text("홈페이지 사정 상,\n 잔여좌석 정보를 불러올 수 없어요.")
+                .multilineTextAlignment(.center)
                 .font(.system(size: 15, weight: .medium))
-                .foregroundStyle(.red)
-                .padding(.top, 150)
+                .foregroundStyle(appearance.caption2)
+                .padding(.top, 210)
         }
     }
 }
