@@ -38,7 +38,7 @@ struct LibraryRoomList: View {
     private var infoView: some View {
         HStack {
             VStack(alignment: .leading, spacing: 8) {
-                Text("도서관 열람식 잔여좌석")
+                Text("도서관 열람실 잔여좌석")
                     .font(.system(size: 24, weight: .bold))
                     .foregroundStyle(appearance.title)
                 
