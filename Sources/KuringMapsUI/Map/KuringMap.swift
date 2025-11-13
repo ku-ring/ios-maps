@@ -36,12 +36,15 @@ public struct KuringMap: View {
                 
                 libraryCapsule
             }
+            .navigationTitle("")
+            .navigationBarHidden(false)
             .ignoresSafeArea(edges: .top)
             .environmentObject(placeService)
             .navigationDestination(for: NavigationPath.self) { path in
                 switch path {
                 case .libraryRoom:
                     LibraryRoomList()
+                        .environment(\.mapAppearance, appearance)
                 }
             }
         }
