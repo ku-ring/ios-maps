@@ -38,6 +38,7 @@ public struct KuringMap: View {
             }
             .navigationTitle("")
             .navigationBarHidden(false)
+            .toolbarBackground(.hidden, for: .navigationBar)
             .ignoresSafeArea(edges: .top)
             .environmentObject(placeService)
             .navigationDestination(for: NavigationPath.self) { path in
