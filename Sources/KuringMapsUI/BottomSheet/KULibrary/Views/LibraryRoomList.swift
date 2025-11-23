@@ -57,7 +57,7 @@ struct LibraryRoomList: View {
                     Button {
                         konkukLibrary.send(.refreshButtonTapped)
                     } label: {
-                        Image(.iconRefresh)
+                        Image("icon.refresh")
                             .rotationEffect(Angle(degrees: konkukLibrary.isAnimating ? 360 : 0))
                             .animation(
                                 .linear(duration: konkukLibrary.isAnimating ? 1 : 0)
