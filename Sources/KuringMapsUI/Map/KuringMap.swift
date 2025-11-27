@@ -60,7 +60,7 @@ public struct KuringMap: View {
                     path.append(.libraryRoom)
                 } label: {
                     HStack(spacing: 6)  {
-                        Image("icon.library.book")
+                        Image("icon.library.book", bundle: .module)
                         
                         Text("열람실 좌석 현황")
                             .font(.system(size: 12))
