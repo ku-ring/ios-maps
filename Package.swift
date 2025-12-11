@@ -17,14 +17,14 @@ let package = Package(
         )
     ],
     dependencies: [
-        .package(url: "https://github.com/ku-ring/the-satellite", branch: "main"),
+        .package(url: "https://github.com/ku-ring/the-satellite-extended", branch: "main"),
         .package(url: "https://github.com/nicklockwood/SwiftFormat", from: "0.50.4"),
     ],
     targets: [
         .target(
             name: "KuringMapsLink",
             dependencies: [
-                .product(name: "Satellite", package: "the-satellite")
+                .product(name: "Satellite", package: "the-satellite-extended")
             ],
             resources: [
                 .process("Resources/place.json")

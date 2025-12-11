@@ -10,12 +10,12 @@
       }
     },
     {
-      "identity" : "the-satellite",
+      "identity" : "the-satellite-extended",
       "kind" : "remoteSourceControl",
-      "location" : "https://github.com/ku-ring/the-satellite",
+      "location" : "https://github.com/ku-ring/the-satellite-extended",
       "state" : {
         "branch" : "main",
-        "revision" : "a3aa99496905102105ed0299b4405045b5c3a466"
+        "revision" : "2ca38855c2c5149931670c245b0e586f979ad911"
       }
     }
   ],
