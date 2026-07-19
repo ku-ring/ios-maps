@@ -19,7 +19,8 @@ class CampusMapViewController: UIViewController, PlaceServiceDelegate {
                     longitudeValue: place.longitude,
                     delta: 0.1,
                     title: place.name,
-                    subtitle: place.category
+                    subtitle: place.category,
+                    iconName: "building"
                 )
             }
             /// 초기 좌표는 일감호의 좌표
@@ -71,6 +72,10 @@ class CampusMapViewController: UIViewController, PlaceServiceDelegate {
             mapView.trailingAnchor.constraint(equalTo: self.view.trailingAnchor)
         ]
         NSLayoutConstraint.activate(constraints)
+        mapView.register(
+            MKMarkerAnnotationView.self,
+            forAnnotationViewWithReuseIdentifier: AnnotationIdentifier.reuseIdentifier
+        )
     }
     
     /// 핀 위치를 세팅
@@ -81,7 +86,8 @@ class CampusMapViewController: UIViewController, PlaceServiceDelegate {
                 longitudeValue: place.longitude,
                 delta: 0.1,
                 title: place.name,
-                subtitle: place.category
+                subtitle: place.category,
+                iconName: "building"
             )
         }
         
@@ -152,25 +158,29 @@ extension CampusMapViewController {
         longitudeValue: CLLocationDegrees,
         delta span: Double,
         title: String,
-        subtitle: String
+        subtitle: String,
+        iconName: String
     ) {
-        let annotation = MKPointAnnotation()
-        annotation.coordinate = goLocation(latitudeValue: latitudeValue, longitudeValue: longitudeValue, delta: span)
-        
-        annotation.title = title
-        annotation.subtitle = subtitle
+        let coordinate = goLocation(latitudeValue: latitudeValue, longitudeValue: longitudeValue, delta: span)
+        let annotation = KuringAnnotation(coordinate: coordinate, title: title, subtitle: subtitle, iconName: iconName)
         mapView.addAnnotation(annotation)
     }
 }
 
 import Combine
+import SwiftUI
 
 extension CampusMapViewController: MKMapViewDelegate {
+    enum AnnotationIdentifier {
+        static let reuseIdentifier = "AnnotationView"
+    }
+    
     /// 맵뷰에서 annotation을 선택했을 때
     func mapView(_ mapView: MKMapView, didSelect view: MKAnnotationView) {
-//        let annotation = view.annotation!
-//
-//        mapView.setCenter(annotation.coordinate, animated: true)
+        let annotation = view.annotation!
+
+        mapView.setCenter(annotation.coordinate, animated: true)
+        
         let selectedPlace = self.places.first {
             view.annotation?.title == $0.name
         }
@@ -179,6 +189,26 @@ extension CampusMapViewController: MKMapViewDelegate {
     
     func mapView(_ mapView: MKMapView, didDeselect annotation: MKAnnotation) {
         placeSeletionPublisher.send(nil)
+    }
+    
+    func mapView(_ mapView: MKMapView, viewFor annotation: any MKAnnotation) -> MKAnnotationView? {
+        guard annotation is KuringAnnotation else {
+            return nil
+        }
+
+        let view = mapView.dequeueReusableAnnotationView(
+            withIdentifier: AnnotationIdentifier.reuseIdentifier,
+            for: annotation
+        ) as? MKMarkerAnnotationView
+        ?? MKMarkerAnnotationView(annotation: annotation, reuseIdentifier: AnnotationIdentifier.reuseIdentifier)
+
+        view.markerTintColor = UIColor(Color.Kuring.primary)
+        view.glyphImage = UIImage(named: "building", in: .module, with: nil)
+        view.glyphTintColor = .white
+        view.titleVisibility = .visible
+        view.canShowCallout = false
+
+        return view
     }
 }
 

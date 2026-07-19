@@ -28,18 +28,31 @@ public struct KuringMap: View {
     @Environment(\.mapAppearance) var appearance
     
     @State private var path: [NavigationPath] = []
+    @State private var searchText: String = ""
+    @State private var selectedCategory: KuringMapCategory?
+    
+    private let categories: [KuringMapCategory] = [
+        KuringMapCategory(title: "교내 카페", icon: "cafe"),
+        KuringMapCategory(title: "식당", icon: "cafeteria"),
+        KuringMapCategory(title: "프린터", icon: "printer"),
+        KuringMapCategory(title: "흡연부스", icon: "smoke"),
+        KuringMapCategory(title: "편의점", icon: "store"),
+        KuringMapCategory(title: "휴게실", icon: "rest"),
+        KuringMapCategory(title: "k-cube", icon: "k-cube"),
+    ]
     
     public var body: some View {
         NavigationStack(path: $path) {
-            ZStack() {
+            ZStack {
                 CampusMapView()
+                    .ignoresSafeArea()
+                
+                topSearchArea
                 
                 libraryCapsule
             }
             .navigationTitle("")
-            .navigationBarHidden(false)
             .toolbarBackground(.hidden, for: .navigationBar)
-            .ignoresSafeArea(edges: .top)
             .environmentObject(placeService)
             .navigationDestination(for: NavigationPath.self) { path in
                 switch path {
@@ -50,33 +63,7 @@ public struct KuringMap: View {
             }
         }
     }
-    
-    private var libraryCapsule: some View {
-        VStack {
-            Spacer()
-            HStack {
-                Spacer()
-                Button {
-                    path.append(.libraryRoom)
-                } label: {
-                    HStack(spacing: 6)  {
-                        Image("icon.library.book", bundle: .module)
-                        
-                        Text("열람실 좌석 현황")
-                            .font(.system(size: 12))
-                            .foregroundStyle(appearance.primary)
-                    }
-                }
-                .padding(12)
-                .background(appearance.bg)
-                .clipShape(.capsule)
-            }
-        }
-        .padding(.trailing, 20)
-        .padding(.bottom, 24)
-        .shadow(radius: 4)
-    }
-    
+
     public init(
         linkConfig: LinkConfiguration?,
         libConfig: LibraryConfiguration?
@@ -107,6 +94,100 @@ public struct KuringMap: View {
     }
 }
 
+// MARK: Views
+extension KuringMap {
+    /// 검색 + 카테고리칩 영역
+    private var topSearchArea: some View {
+        VStack(spacing: 12) {
+            searchBar
+            categoryPills
+            Spacer()
+        }
+        .padding(.top, 8)
+    }
+    
+    /// 검색창
+    private var searchBar: some View {
+        HStack(spacing: 8) {
+            TextField("건물명 및 위치 검색", text: $searchText)
+                .font(.system(size: 16, weight: .medium))
+                .foregroundStyle(Color.Kuring.caption1)
+            
+            Image("search2", bundle: .module)
+        }
+        .padding(.horizontal, 16)
+        .padding(.vertical, 10)
+        .background(
+            RoundedRectangle(cornerRadius: 12, style: .continuous)
+                .fill(Color.Kuring.bg)
+        )
+        .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
+        .shadow(radius: 4)
+        .padding(.horizontal, 20)
+    }
+    
+    /// 카테고리칩 ScrollView
+    private var categoryPills: some View {
+        ScrollView(.horizontal, showsIndicators: false) {
+            HStack(spacing: 8) {
+                ForEach(categories) { category in
+                    categoryPill(category)
+                }
+            }
+            .padding(.horizontal, 20)
+            .padding(.vertical, 8)
+        }
+        .scrollClipDisabled()
+    }
+    
+    /// 카테고리칩 컴포넌트
+    private func categoryPill(_ category: KuringMapCategory) -> some View {
+        HStack(spacing: 6) {
+            Image(category.icon, bundle: .module)
+                .font(.system(size: 13))
+            
+            Text(category.title)
+                .font(.system(size: 14, weight: .medium))
+        }
+        .foregroundStyle(Color.Kuring.body)
+        .padding(.horizontal, 14)
+        .padding(.vertical, 9)
+        .background(
+            Capsule()
+                .fill(Color.Kuring.bg)
+                .shadow(color: .black.opacity(0.08), radius: 4)
+        )
+    }
+    
+    // MARK: - Library Capsule (existing)
+    private var libraryCapsule: some View {
+        VStack {
+            Spacer()
+            HStack {
+                Spacer()
+                Button {
+                    path.append(.libraryRoom)
+                } label: {
+                    HStack(spacing: 6)  {
+                        Image("icon.library.book", bundle: .module)
+                        
+                        Text("열람실 좌석 현황")
+                            .font(.system(size: 12))
+                            .foregroundStyle(Color.Kuring.primary)
+                    }
+                }
+                .padding(12)
+                .background(Color.Kuring.bg)
+                .clipShape(.capsule)
+            }
+        }
+        .padding(.trailing, 20)
+        .padding(.bottom, 24)
+        .shadow(color: .black.opacity(0.08), radius: 4)
+    }
+    
+}
+
 struct KuringMap_Previews: PreviewProvider {
     static var previews: some View {
         TabView {
@@ -114,22 +195,6 @@ struct KuringMap_Previews: PreviewProvider {
                 linkConfig: .init(host: ""),
                 libConfig: .init(host: "")
             )
-//            .environment(
-//                \.mapAppearance,
-//                 Appearance(
-//                    tint: .red,
-//                    primary: .orange,
-//                    secondary: .yellow,
-//                    background: .green,
-//                    secondaryBackground: .blue,
-//                    link: .purple,
-//                    body: .body,
-//                    title: .title,
-//                    subtitle: .subheadline,
-//                    footnote: .footnote,
-//                    caption: .caption
-//                 )
-//            )
             .tabItem { Text("maps") }
         }
     }
