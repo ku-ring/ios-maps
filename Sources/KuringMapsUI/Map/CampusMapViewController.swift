@@ -5,10 +5,11 @@
 
 import UIKit
 import MapKit
+import Combine
+import SwiftUI
 import KuringMapsLink
 
-class CampusMapViewController: UIViewController, PlaceServiceDelegate {
-    
+class CampusMapViewController: UIViewController {
     /// 학교 건물 정보
     var places: [Place] = [] {
         didSet {
@@ -50,7 +51,6 @@ class CampusMapViewController: UIViewController, PlaceServiceDelegate {
                 places = Place.places
             }
         }
-        PlaceManager.shared.delegate = self
         setupMapView()
         setupAnnotation()
     }
@@ -166,9 +166,6 @@ extension CampusMapViewController {
         mapView.addAnnotation(annotation)
     }
 }
-
-import Combine
-import SwiftUI
 
 extension CampusMapViewController: MKMapViewDelegate {
     enum AnnotationIdentifier {

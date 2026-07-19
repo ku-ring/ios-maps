@@ -24,12 +24,12 @@ import KuringMapsLink
 ```
 */
 public struct KuringMap: View {
-    @StateObject private var placeService = PlaceService()
     @Environment(\.mapAppearance) var appearance
     
     @State private var path: [NavigationPath] = []
     @State private var searchText: String = ""
     @State private var selectedCategory: KuringMapCategory?
+    @State private var selectedPlace: Place?
     
     private let categories: [KuringMapCategory] = [
         KuringMapCategory(title: "교내 카페", icon: "cafe"),
@@ -53,7 +53,6 @@ public struct KuringMap: View {
             }
             .navigationTitle("")
             .toolbarBackground(.hidden, for: .navigationBar)
-            .environmentObject(placeService)
             .navigationDestination(for: NavigationPath.self) { path in
                 switch path {
                 case .libraryRoom:
@@ -61,6 +60,14 @@ public struct KuringMap: View {
                         .environment(\.mapAppearance, appearance)
                 }
             }
+        }
+        .onReceive(placeSeletionPublisher) { place in
+            selectedPlace = place
+        }
+        .sheet(item: $selectedPlace) { place in
+            KuringMapBottomSheet(place: place)
+                .presentationDetents([.medium, .large])
+                .presentationDragIndicator(.visible)
         }
     }
 
