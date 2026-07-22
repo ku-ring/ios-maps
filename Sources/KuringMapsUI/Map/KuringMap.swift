@@ -31,20 +31,12 @@ public struct KuringMap: View {
     @State private var selectedCategory: KuringMapCategory?
     @State private var selectedPlace: Place?
     
-    private let categories: [KuringMapCategory] = [
-        KuringMapCategory(title: "교내 카페", icon: "cafe"),
-        KuringMapCategory(title: "식당", icon: "cafeteria"),
-        KuringMapCategory(title: "프린터", icon: "printer"),
-        KuringMapCategory(title: "흡연부스", icon: "smoke"),
-        KuringMapCategory(title: "편의점", icon: "store"),
-        KuringMapCategory(title: "휴게실", icon: "rest"),
-        KuringMapCategory(title: "k-cube", icon: "k-cube"),
-    ]
+    private let categories = KuringMapCategory.allCases
     
     public var body: some View {
         NavigationStack(path: $path) {
             ZStack {
-                CampusMapView()
+                CampusMapView(selectedCategory: selectedCategory)
                     .ignoresSafeArea()
                 
                 topSearchArea
@@ -58,6 +50,10 @@ public struct KuringMap: View {
                 case .libraryRoom:
                     LibraryRoomList()
                         .environment(\.mapAppearance, appearance)
+                case .search:
+                    KuringMapSearchView { place in
+                        print(place)
+                    }
                 }
             }
         }
@@ -98,6 +94,8 @@ public struct KuringMap: View {
     enum NavigationPath {
         /// 도서관 잔여 좌석
         case libraryRoom
+        /// 위치 검색
+        case search
     }
 }
 
@@ -131,6 +129,9 @@ extension KuringMap {
         .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
         .shadow(radius: 4)
         .padding(.horizontal, 20)
+        .onTapGesture {
+            path.append(.search)
+        }
     }
     
     /// 카테고리칩 ScrollView
@@ -151,19 +152,31 @@ extension KuringMap {
     private func categoryPill(_ category: KuringMapCategory) -> some View {
         HStack(spacing: 6) {
             Image(category.icon, bundle: .module)
+                .renderingMode(.template)
                 .font(.system(size: 13))
             
             Text(category.title)
                 .font(.system(size: 14, weight: .medium))
         }
-        .foregroundStyle(Color.Kuring.body)
+        .foregroundStyle(selectedCategory == category ? Color.Kuring.primary : Color.Kuring.body)
         .padding(.horizontal, 14)
         .padding(.vertical, 9)
         .background(
             Capsule()
                 .fill(Color.Kuring.bg)
+                .stroke(
+                    selectedCategory == category ? Color.Kuring.primary : Color.Kuring.bg,
+                    lineWidth: selectedCategory == category ? 1 : 0
+                )
                 .shadow(color: .black.opacity(0.08), radius: 4)
         )
+        .onTapGesture {
+            if selectedCategory == category {
+                selectedCategory = nil      // 다시 누르면 필터 해제
+            } else {
+                selectedCategory = category // 해당 카테고리 선택
+            }
+        }
     }
     
     // MARK: - Library Capsule (existing)

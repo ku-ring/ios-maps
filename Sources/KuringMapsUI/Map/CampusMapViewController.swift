@@ -10,29 +10,18 @@ import SwiftUI
 import KuringMapsLink
 
 class CampusMapViewController: UIViewController {
+    private var allPlaces: [Place] = []
     /// 학교 건물 정보
     var places: [Place] = [] {
         didSet {
-            self.mapView.removeAnnotations(self.mapView.annotations)
-            places.forEach { place in
-                addAnnotation(
-                    latitudeValue: place.latitude,
-                    longitudeValue: place.longitude,
-                    delta: 0.1,
-                    title: place.name,
-                    subtitle: place.category,
-                    iconName: "building"
-                )
-            }
-            /// 초기 좌표는 일감호의 좌표
-            let mapCamera = MKMapCamera()
-            mapCamera.centerCoordinate = CLLocationCoordinate2D(
-                latitude: 37.538744,
-                longitude: 127.076451
-            )
-            mapCamera.heading = 20
-            mapCamera.altitude = 5000
-            mapView.setCamera(mapCamera, animated: false)
+            allPlaces = places
+            reloadAnnotations()
+        }
+    }
+    
+    var selectedCategory: KuringMapCategory? {
+        didSet {
+            reloadAnnotations()
         }
     }
     
@@ -110,6 +99,30 @@ class CampusMapViewController: UIViewController {
         guard let annotation = self.mapView.annotations.first(where: { $0.title == place.name }) as? MKPointAnnotation else { return }
         self.mapView.selectAnnotation(annotation, animated: true)
     }
+    
+    private func reloadAnnotations() {
+        mapView.removeAnnotations(mapView.annotations)
+
+        let filteredPlaces: [Place]
+        if let category = selectedCategory {
+            filteredPlaces = allPlaces.filter {
+                $0.category == category.rawValue
+            }
+        } else {
+            filteredPlaces = allPlaces
+        }
+
+        for place in filteredPlaces {
+            addAnnotation(
+                latitudeValue: place.latitude,
+                longitudeValue: place.longitude,
+                delta: 0.1,
+                title: place.name,
+                subtitle: "",
+                iconName: selectedCategory?.icon ?? "building"
+            )
+        }
+    }
 }
 
 extension CampusMapViewController {
@@ -161,8 +174,18 @@ extension CampusMapViewController {
         subtitle: String,
         iconName: String
     ) {
-        let coordinate = goLocation(latitudeValue: latitudeValue, longitudeValue: longitudeValue, delta: span)
-        let annotation = KuringAnnotation(coordinate: coordinate, title: title, subtitle: subtitle, iconName: iconName)
+        let coordinate = CLLocationCoordinate2D(
+            latitude: latitudeValue,
+            longitude: longitudeValue
+        )
+
+        let annotation = KuringAnnotation(
+            coordinate: coordinate,
+            title: title,
+            subtitle: subtitle,
+            iconName: iconName
+        )
+
         mapView.addAnnotation(annotation)
     }
 }
@@ -200,7 +223,13 @@ extension CampusMapViewController: MKMapViewDelegate {
         ?? MKMarkerAnnotationView(annotation: annotation, reuseIdentifier: AnnotationIdentifier.reuseIdentifier)
 
         view.markerTintColor = UIColor(Color.Kuring.primary)
-        view.glyphImage = UIImage(named: "building", in: .module, with: nil)
+        if let annotation = annotation as? KuringAnnotation {
+            view.glyphImage = UIImage(
+                named: annotation.iconName,
+                in: .module,
+                with: nil
+            )
+        }
         view.glyphTintColor = .white
         view.titleVisibility = .visible
         view.canShowCallout = false
