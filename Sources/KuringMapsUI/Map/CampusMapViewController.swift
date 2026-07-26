@@ -36,7 +36,6 @@ class CampusMapViewController: UIViewController {
             if let remotePlaces {
                 places = remotePlaces
             } else {
-                
                 places = Place.places
             }
         }
