@@ -8,35 +8,31 @@ import SwiftUI
 import KuringMapsLink
 
 /**
- 캠퍼스 지도를 띄어주는 `View`.
+ 캠퍼스 지도를 띄워주는 `View`.
  
-```swift
- struct KonkukCampusMap: View {
-    private let configuration = MapConfiguration(
-        appID = "B1D6861E-E40E-4CF9-AB7F-E574FB835037"
-    )
- 
-    var body: some View {
-        KuringMap(configuration: configuration)
-            .environment(\.mapConfiguration, configuration)
-    }
- }
-```
-*/
+ ```swift
+  struct KonkukCampusMap: View {
+     private let configuration = MapConfiguration(
+         appID = "B1D6861E-E40E-4CF9-AB7F-E574FB835037"
+     )
+  
+     var body: some View {
+         KuringMap(configuration: configuration)
+             .environment(\.mapConfiguration, configuration)
+     }
+  }
+ ```
+ */
 public struct KuringMap: View {
     @Environment(\.mapAppearance) var appearance
     
+    @StateObject private var viewModel = KuringMapViewModel()
     @State private var path: [NavigationPath] = []
-    @State private var searchText: String = ""
-    @State private var selectedCategory: KuringMapCategory?
-    @State private var selectedPlace: Place?
-    
-    private let categories = KuringMapCategory.allCases
     
     public var body: some View {
         NavigationStack(path: $path) {
             ZStack {
-                CampusMapView(selectedCategory: selectedCategory)
+                CampusMapView(viewModel: viewModel)
                     .ignoresSafeArea()
                 
                 topSearchArea
@@ -51,19 +47,29 @@ public struct KuringMap: View {
                     LibraryRoomList()
                         .environment(\.mapAppearance, appearance)
                 case .search:
-                    KuringMapSearchView { place in
-                        print(place)
+                    KuringMapSearchView(viewModel: viewModel) { building in
+                        self.path.removeLast()
+                        Task {
+                            await viewModel.selectBuilding(id: building.id)
+                        }
                     }
                 }
             }
         }
-        .onReceive(placeSeletionPublisher) { place in
-            selectedPlace = place
+        .onAppear {
+            Task {
+                await viewModel.loadInitialData()
+            }
         }
-        .sheet(item: $selectedPlace) { place in
-            KuringMapBottomSheet(place: place)
-                .presentationDetents([.medium, .large])
-                .presentationDragIndicator(.visible)
+        .sheet(isPresented: Binding(
+            get: { viewModel.showBottomSheet },
+            set: { if !$0 { viewModel.deselectBuilding() } }
+        )) {
+            if let detail = viewModel.selectedBuildingDetail {
+                KuringMapBottomSheet(detail: detail)
+                    .presentationDetents([.medium, .large])
+                    .presentationDragIndicator(.visible)
+            }
         }
     }
 
@@ -114,9 +120,10 @@ extension KuringMap {
     /// 검색창
     private var searchBar: some View {
         HStack(spacing: 8) {
-            TextField("건물명 및 위치 검색", text: $searchText)
+            TextField("건물명 및 위치 검색", text: $viewModel.searchText)
                 .font(.system(size: 16, weight: .medium))
                 .foregroundStyle(Color.Kuring.caption1)
+                .disabled(true)
             
             Image("search2", bundle: .module)
         }
@@ -138,7 +145,7 @@ extension KuringMap {
     private var categoryPills: some View {
         ScrollView(.horizontal, showsIndicators: false) {
             HStack(spacing: 8) {
-                ForEach(categories) { category in
+                ForEach(viewModel.categories) { category in
                     categoryPill(category)
                 }
             }
@@ -149,33 +156,32 @@ extension KuringMap {
     }
     
     /// 카테고리칩 컴포넌트
-    private func categoryPill(_ category: KuringMapCategory) -> some View {
-        HStack(spacing: 6) {
-            Image(category.icon, bundle: .module)
+    private func categoryPill(_ category: MapCategory) -> some View {
+        let isSelected = viewModel.selectedCategoryNames.contains(category.name)
+        let iconName = category.name
+        
+        return HStack(spacing: 6) {
+            Image(iconName, bundle: .module)
                 .renderingMode(.template)
                 .font(.system(size: 13))
             
-            Text(category.title)
+            Text(category.korName)
                 .font(.system(size: 14, weight: .medium))
         }
-        .foregroundStyle(selectedCategory == category ? Color.Kuring.primary : Color.Kuring.body)
+        .foregroundStyle(isSelected ? Color.Kuring.primary : Color.Kuring.body)
         .padding(.horizontal, 14)
         .padding(.vertical, 9)
         .background(
             Capsule()
                 .fill(Color.Kuring.bg)
                 .stroke(
-                    selectedCategory == category ? Color.Kuring.primary : Color.Kuring.bg,
-                    lineWidth: selectedCategory == category ? 1 : 0
+                    isSelected ? Color.Kuring.primary : Color.Kuring.bg,
+                    lineWidth: isSelected ? 1 : 0
                 )
                 .shadow(color: .black.opacity(0.08), radius: 4)
         )
         .onTapGesture {
-            if selectedCategory == category {
-                selectedCategory = nil      // 다시 누르면 필터 해제
-            } else {
-                selectedCategory = category // 해당 카테고리 선택
-            }
+            viewModel.toggleCategory(category)
         }
     }
     
@@ -205,7 +211,6 @@ extension KuringMap {
         .padding(.bottom, 24)
         .shadow(color: .black.opacity(0.08), radius: 4)
     }
-    
 }
 
 struct KuringMap_Previews: PreviewProvider {

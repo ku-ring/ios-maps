@@ -8,20 +8,14 @@ import SwiftUI
 import KuringMapsLink
 
 struct CampusMapView: UIViewControllerRepresentable {
-    let selectedCategory: KuringMapCategory?
+    @ObservedObject var viewModel: KuringMapViewModel
     
-    func makeUIViewController(context: Context) -> some UIViewController {
-        let campusMapViewController = CampusMapViewController()
+    func makeUIViewController(context: Context) -> CampusMapViewController {
+        let campusMapViewController = CampusMapViewController(viewModel: viewModel)
         return campusMapViewController
     }
 
-    func updateUIViewController(_ uiViewController: UIViewControllerType, context: Context) {
-        if let uiViewController = uiViewController as? CampusMapViewController {
-            uiViewController.selectedCategory = selectedCategory
-        }
+    func updateUIViewController(_ uiViewController: CampusMapViewController, context: Context) {
+        uiViewController.updateAnnotations()
     }
 }
-
-import Combine
-
-let placeSeletionPublisher = PassthroughSubject<Place?, Never>()

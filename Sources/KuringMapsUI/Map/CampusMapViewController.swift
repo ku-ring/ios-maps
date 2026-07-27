@@ -10,37 +10,29 @@ import SwiftUI
 import KuringMapsLink
 
 class CampusMapViewController: UIViewController {
-    private var allPlaces: [Place] = []
-    /// 학교 건물 정보
-    var places: [Place] = [] {
-        didSet {
-            allPlaces = places
-            reloadAnnotations()
-        }
-    }
-    
-    var selectedCategory: KuringMapCategory? {
-        didSet {
-            reloadAnnotations()
-        }
-    }
+    let viewModel: KuringMapViewModel
     
     let locationManager = CLLocationManager()
     lazy var mapView = MKMapView()
     
+    // 렌더링 상태 캐싱을 위함
+    private var lastCategoryNames: Set<String> = []
+    private var lastBuildingsCount: Int = 0
+    private var lastCampusPlacesCount: Int = 0
+    
+    init(viewModel: KuringMapViewModel) {
+        self.viewModel = viewModel
+        super.init(nibName: nil, bundle: nil)
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+    
     override func viewDidLoad() {
         super.viewDidLoad()
-        
-        Task {
-            let remotePlaces = try? await KuringMapsLink.placesInKonkukUniv
-            if let remotePlaces {
-                places = remotePlaces
-            } else {
-                places = Place.places
-            }
-        }
         setupMapView()
-        setupAnnotation()
+        setupInitialCamera()
     }
     
     func setupMapView() {
@@ -66,19 +58,7 @@ class CampusMapViewController: UIViewController {
         )
     }
     
-    /// 핀 위치를 세팅
-    func setupAnnotation() {
-        places.forEach { place in
-            addAnnotation(
-                latitudeValue: place.latitude,
-                longitudeValue: place.longitude,
-                delta: 0.1,
-                title: place.name,
-                subtitle: place.category,
-                iconName: "building"
-            )
-        }
-        
+    func setupInitialCamera() {
         /// 초기 좌표는 일감호의 좌표
         let mapCamera = MKMapCamera()
         mapCamera.centerCoordinate = CLLocationCoordinate2D(
@@ -90,36 +70,47 @@ class CampusMapViewController: UIViewController {
         mapView.setCamera(mapCamera, animated: false)
     }
     
-    func placeServiceDidChange(places: [Place]) {
-        self.places = places
-    }
-    
-    func placeServiceDidSelect(place: Place) {
-        guard let annotation = self.mapView.annotations.first(where: { $0.title == place.name }) as? MKPointAnnotation else { return }
-        self.mapView.selectAnnotation(annotation, animated: true)
-    }
-    
-    private func reloadAnnotations() {
+    func updateAnnotations() {
+        let categoryNames = viewModel.selectedCategoryNames
+        let buildingsCount = viewModel.allBuildings.count
+        let campusPlacesCount = viewModel.campusPlaces.count
+        
+        if lastCategoryNames == categoryNames &&
+            lastBuildingsCount == buildingsCount &&
+            lastCampusPlacesCount == campusPlacesCount {
+            return
+        }
+        
+        lastCategoryNames = categoryNames
+        lastBuildingsCount = buildingsCount
+        lastCampusPlacesCount = campusPlacesCount
+        
         mapView.removeAnnotations(mapView.annotations)
-
-        let filteredPlaces: [Place]
-        if let category = selectedCategory {
-            filteredPlaces = allPlaces.filter {
-                $0.category == category.rawValue
+        
+        if viewModel.selectedCategoryNames.isEmpty {
+            // 모든 건물 보여주기
+            for building in viewModel.allBuildings {
+                addAnnotation(
+                    buildingId: building.id,
+                    latitudeValue: building.latitude,
+                    longitudeValue: building.longitude,
+                    title: building.name,
+                    subtitle: "",
+                    iconName: "building"
+                )
             }
         } else {
-            filteredPlaces = allPlaces
-        }
-
-        for place in filteredPlaces {
-            addAnnotation(
-                latitudeValue: place.latitude,
-                longitudeValue: place.longitude,
-                delta: 0.1,
-                title: place.name,
-                subtitle: "",
-                iconName: selectedCategory?.icon ?? "building"
-            )
+            // 필터된 건물만 보여주기
+            for place in viewModel.campusPlaces {
+                addAnnotation(
+                    buildingId: place.building.id,
+                    latitudeValue: place.building.latitude,
+                    longitudeValue: place.building.longitude,
+                    title: place.name,
+                    subtitle: place.building.name,
+                    iconName: place.category
+                )
+            }
         }
     }
 }
@@ -143,32 +134,23 @@ extension CampusMapViewController {
     
     /// 위치가 업데이트 되었을 때 지도에 나타내기 위한 메서드
     func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
-        guard let location = locations.last else { return }
+        guard let location = locations.last else {
+            return
+        }
         
         _ = goLocation(
             latitudeValue: location.coordinate.latitude,
             longitudeValue: location.coordinate.longitude,
             delta: 0.01
         )
-        
-        CLGeocoder().reverseGeocodeLocation(location) { placemarks, error -> Void in
-            let placemark = placemarks?.first
-            let country = placemark?.country
-            var address: String = country!
-            if placemark?.locality != nil {
-                address += " "
-                address += placemark!.thoroughfare!
-            }
-        }
-        
         locationManager.stopUpdatingLocation()
     }
     
     /// 어노테이션을 추가
     func addAnnotation(
+        buildingId: Int,
         latitudeValue: CLLocationDegrees,
         longitudeValue: CLLocationDegrees,
-        delta span: Double,
         title: String,
         subtitle: String,
         iconName: String
@@ -182,7 +164,8 @@ extension CampusMapViewController {
             coordinate: coordinate,
             title: title,
             subtitle: subtitle,
-            iconName: iconName
+            iconName: iconName,
+            buildingId: buildingId
         )
 
         mapView.addAnnotation(annotation)
@@ -196,18 +179,19 @@ extension CampusMapViewController: MKMapViewDelegate {
     
     /// 맵뷰에서 annotation을 선택했을 때
     func mapView(_ mapView: MKMapView, didSelect view: MKAnnotationView) {
-        let annotation = view.annotation!
+        guard let annotation = view.annotation as? KuringAnnotation else {
+            return
+        }
 
         mapView.setCenter(annotation.coordinate, animated: true)
         
-        let selectedPlace = self.places.first {
-            view.annotation?.title == $0.name
+        Task {
+            await viewModel.selectBuilding(id: annotation.buildingId)
         }
-        placeSeletionPublisher.send(selectedPlace)
     }
     
     func mapView(_ mapView: MKMapView, didDeselect annotation: MKAnnotation) {
-        placeSeletionPublisher.send(nil)
+        viewModel.deselectBuilding()
     }
     
     func mapView(_ mapView: MKMapView, viewFor annotation: any MKAnnotation) -> MKAnnotationView? {
@@ -236,5 +220,3 @@ extension CampusMapViewController: MKMapViewDelegate {
         return view
     }
 }
-
-

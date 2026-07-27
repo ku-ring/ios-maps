@@ -9,16 +9,13 @@ import SwiftUI
 import KuringMapsLink
 
 struct KuringMapSearchView: View {
-    let onSelect: (Place) -> Void
+    @ObservedObject var viewModel: KuringMapViewModel
+    let onSelect: (Building) -> Void
 
     @Environment(\.dismiss) private var dismiss
     @FocusState private var isSearchFocused: Bool
 
-    @State private var searchText: String = ""
-    @State private var recentSearches: [RecentSearch] = []
-    @State private var searchResults: [Place] = []
-
-    private var isSearching: Bool { !searchText.isEmpty }
+    private var isSearching: Bool { !viewModel.searchText.isEmpty }
 
     var body: some View {
         VStack(spacing: 0) {
@@ -26,7 +23,7 @@ struct KuringMapSearchView: View {
 
             if isSearching {
                 resultsList
-            } else if recentSearches.isEmpty {
+            } else if viewModel.recentSearches.isEmpty {
                 emptyState
             } else {
                 recentSearchList
@@ -38,8 +35,8 @@ struct KuringMapSearchView: View {
         .onAppear {
             isSearchFocused = true
         }
-        .onChange(of: searchText) { _, newValue in
-            performSearch(newValue)
+        .onChange(of: viewModel.searchText) { _, newValue in
+            viewModel.performSearch(newValue)
         }
     }
 
@@ -56,19 +53,19 @@ struct KuringMapSearchView: View {
             }
 
             HStack(spacing: 8) {
-                TextField("건물명 및 위치 검색", text: $searchText)
+                TextField("건물명 및 위치 검색", text: $viewModel.searchText)
                     .font(.system(size: 16, weight: .medium))
                     .foregroundStyle(Color.Kuring.caption1)
                     .focused($isSearchFocused)
                     .submitLabel(.search)
                     .onSubmit {
-                        commitSearch(searchText)
+                        viewModel.commitSearch(viewModel.searchText)
                     }
 
                 if isSearching {
                     Button {
-                        searchText = ""
-                        searchResults = []
+                        viewModel.searchText = ""
+                        viewModel.searchResults = []
                     } label: {
                         Image("search2", bundle: .module)
                     }
@@ -119,7 +116,7 @@ struct KuringMapSearchView: View {
                 Spacer()
 
                 Button {
-                    recentSearches.removeAll()
+                    viewModel.recentSearches.removeAll()
                 } label: {
                     Text("전체삭제")
                         .font(.system(size: 16))
@@ -130,7 +127,7 @@ struct KuringMapSearchView: View {
             .padding(.top, 16)
             .padding(.bottom, 8)
 
-            ForEach(recentSearches) { item in
+            ForEach(viewModel.recentSearches) { item in
                 recentSearchRow(item)
             }
         }
@@ -156,7 +153,7 @@ struct KuringMapSearchView: View {
             Spacer()
 
             Button {
-                recentSearches.removeAll { $0.id == item.id }
+                viewModel.recentSearches.removeAll { $0.id == item.id }
             } label: {
                 Image(systemName: "xmark")
                     .foregroundStyle(Color.Kuring.gray300)
@@ -166,21 +163,23 @@ struct KuringMapSearchView: View {
         .padding(.vertical, 12)
         .contentShape(Rectangle())
         .onTapGesture {
-            searchText = item.query
-            commitSearch(item.query)
+            viewModel.searchText = item.query
+            viewModel.commitSearch(item.query)
         }
     }
 
     // MARK: - Autocomplete results
     private var resultsList: some View {
-        VStack(spacing: 0) {
-            ForEach(searchResults) { place in
-                resultRow(place)
+        ScrollView {
+            LazyVStack(spacing: 0) {
+                ForEach(viewModel.searchResults) { building in
+                    resultRow(building)
+                }
             }
         }
     }
 
-    private func resultRow(_ place: Place) -> some View {
+    private func resultRow(_ building: Building) -> some View {
         HStack(spacing: 8) {
             Image("building", bundle: .module)
                 .renderingMode(.template)
@@ -193,7 +192,7 @@ struct KuringMapSearchView: View {
                 )
                 .padding(.leading, 8)
 
-            highlightedText(place.name, matching: searchText)
+            highlightedText(building.name, matching: viewModel.searchText)
                 .font(.system(size: 16, weight: .semibold))
 
             Spacer()
@@ -202,8 +201,8 @@ struct KuringMapSearchView: View {
         .padding(.vertical, 12)
         .contentShape(Rectangle())
         .onTapGesture {
-            commitSearch(place.name)
-            onSelect(place)
+            viewModel.commitSearch(building.name)
+            onSelect(building)
         }
     }
 
@@ -222,34 +221,16 @@ struct KuringMapSearchView: View {
             + Text(match).foregroundColor(Color.Kuring.primary)
             + Text(after).foregroundColor(Color.Kuring.body)
     }
-
-    // MARK: - Logic
-    private func performSearch(_ query: String) {
-        guard !query.isEmpty else {
-            searchResults = []
-            return
-        }
-        // 실제 데이터 소스로 교체 필요 (예: PlaceManager.shared.places)
-        searchResults = Place.places.filter { $0.name.localizedCaseInsensitiveContains(query) }
-    }
-
-    private func commitSearch(_ query: String) {
-        guard !query.isEmpty else { return }
-        if !recentSearches.contains(where: { $0.query == query }) {
-            recentSearches.insert(RecentSearch(query: query, iconName: "building"), at: 0)
-        }
-        isSearchFocused = false
-    }
 }
 
-struct RecentSearch: Identifiable, Equatable {
-    let id = UUID()
-    let query: String
-    let iconName: String
+public struct RecentSearch: Identifiable, Equatable {
+    public let id = UUID()
+    public let query: String
+    public let iconName: String
 }
 
 #Preview {
-    KuringMapSearchView { place in
-        print(place)
+    KuringMapSearchView(viewModel: KuringMapViewModel()) { building in
+        print(building)
     }
 }
