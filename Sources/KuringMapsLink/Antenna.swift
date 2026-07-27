@@ -12,22 +12,14 @@ class Antenna {
     init() {
         #if DEBUG
         satellite = Satellite(host: KuringMapsLink.linkHost, scheme: .https)
+        satellite._startGPS()
         #else
         satellite = Satellite(host: KuringMapsLink.linkHost)
         #endif
     }
     
-    func places(parentId: String) async throws -> [Place] {
-        let response: Response<[Place]> = try await satellite.response(
-            for: "api/v1/places",
-            httpMethod: .get,
-            queryItems: [.init(name: "parentId", value: parentId)]
-        )
-        return response.data
-    }
-    
-    func categories() async throws -> CategoryListResponse {
-        let response: Response<CategoryListResponse> = try await satellite.response(
+    func categories() async throws -> MapCategoryListResponse {
+        let response: Response<MapCategoryListResponse> = try await satellite.response(
             for: "api/v2/maps/categories",
             httpMethod: .get
         )
@@ -42,14 +34,6 @@ class Antenna {
         return response.data
     }
     
-    func search() async throws -> [Place] {
-        let response: Response<[Place]> = try await satellite.response(
-            for: "api/v2/maps/buildings/search",
-            httpMethod: .get
-        )
-        return response.data
-    }
-    
     func campusPlaces(categories: [String]) async throws -> CampusPlaceListResponse {
         let response: Response<CampusPlaceListResponse> = try await satellite.response(
             for: "api/v2/maps/campus-places",
@@ -59,15 +43,14 @@ class Antenna {
         return response.data
     }
     
-    func getBuildingDetail() async throws -> BuildingDetailResponse {
+    func getBuildingDetail(id: Int) async throws -> BuildingDetailResponse {
         let response: Response<BuildingDetailResponse> = try await satellite.response(
-            for: "api/v2/maps/buildings/3",
+            for: "api/v2/maps/buildings/\(id)",
             httpMethod: .get
         )
         return response.data
     }
 }
-
 
 struct Response<ResultData: Decodable>: Decodable {
     let code: Int

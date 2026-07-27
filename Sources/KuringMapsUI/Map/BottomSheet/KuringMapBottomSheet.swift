@@ -9,7 +9,7 @@ import SwiftUI
 import KuringMapsLink
 
 struct KuringMapBottomSheet: View {
-    let place: Place
+    let detail: BuildingDetailResponse
     @Environment(\.dismiss) private var dismiss
 
     var body: some View {
@@ -25,6 +25,7 @@ struct KuringMapBottomSheet: View {
             .padding(.top, 32)
             .padding(.bottom, 32)
         }
+        .background(Color.Kuring.bg)
     }
 }
 
@@ -33,7 +34,7 @@ extension KuringMapBottomSheet {
     /// 헤더영역
     private var header: some View {
         HStack {
-            Text(place.name)
+            Text(detail.name)
                 .font(.system(size: 20, weight: .bold))
                 .foregroundStyle(Color.Kuring.title)
 
@@ -51,16 +52,21 @@ extension KuringMapBottomSheet {
         }
     }
 
-    /// 카테고리 영역
+    /// 카테고리 영역 (건물 내 존재하는 시설 카테고리 목록 표시)
     private var categoryRow: some View {
-        HStack(spacing: 8) {
-            Text(place.category)
-                .font(.system(size: 14, weight: .medium))
-                .foregroundStyle(Color.Kuring.caption1)
+        let categoriesList = Array(Set(detail.campusPlaces.map { $0.categoryKorName })).sorted()
+        let categoryIcons = Array(Set(detail.campusPlaces.map { $0.category })).sorted()
+        
+        return HStack(spacing: 8) {
+            ForEach(categoriesList, id: \.self) { categoryName in
+                Text(categoryName)
+                    .font(.system(size: 14, weight: .medium))
+                    .foregroundStyle(Color.Kuring.caption1)
+            }
 
-            ForEach(place.facilityIcons, id: \.self) { iconName in
+            ForEach(categoryIcons, id: \.self) { iconName in
                 Image(iconName, bundle: .module)
-                    .font(.system(size: 12))
+                    .renderingMode(.template)
                     .foregroundStyle(Color.Kuring.caption1)
                     .padding(2)
                     .background(
@@ -71,21 +77,41 @@ extension KuringMapBottomSheet {
         }
     }
 
-    /// 정보 영역
+    /// 정보 영역 (건물 상세 및 운영시간)
     private var infoSection: some View {
         HStack(alignment: .top, spacing: 12) {
             VStack(alignment: .leading, spacing: 8) {
                 addressRow
-                hoursSubRow(label: "운영시간", value: place.hours.closingNote, emphasized: false)
-                hoursSubRow(label: "학기 중", value: place.hours.duringTerm, emphasized: true)
-                hoursSubRow(label: "방학 중", value: place.hours.duringVacation, emphasized: false)
+                hoursSubRow(label: "기간", value: detail.currentOperatingHours.period, emphasized: false)
+                hoursSubRow(label: "요일", value: detail.currentOperatingHours.dayGroup, emphasized: false)
+                hoursSubRow(label: "상태", value: detail.currentOperatingHours.status, emphasized: true)
+                if let opensAt = detail.currentOperatingHours.opensAt, let closesAt = detail.currentOperatingHours.closesAt {
+                    hoursSubRow(label: "운영시간", value: "\(opensAt) ~ \(closesAt)", emphasized: false)
+                }
             }
 
             Spacer()
 
-            RoundedRectangle(cornerRadius: 12, style: .continuous)
-                .fill(Color.Kuring.primary)
+            if let imageUrlString = detail.imageUrl, let url = URL(string: imageUrlString) {
+                AsyncImage(url: url) { image in
+                    image
+                        .resizable()
+                        .aspectRatio(contentMode: .fill)
+                } placeholder: {
+                    ProgressView()
+                }
                 .frame(width: 80, height: 80)
+                .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
+            } else {
+                RoundedRectangle(cornerRadius: 12, style: .continuous)
+                    .fill(Color.Kuring.primary.opacity(0.1))
+                    .frame(width: 80, height: 80)
+                    .overlay(
+                        Image("building", bundle: .module)
+                            .renderingMode(.template)
+                            .foregroundStyle(Color.Kuring.primary)
+                    )
+            }
         }
     }
 
@@ -99,12 +125,12 @@ extension KuringMapBottomSheet {
             Spacer()
             
             HStack(spacing: 6) {
-                Text(place.address)
+                Text(detail.address)
                     .font(.system(size: 15))
                     .foregroundStyle(Color.Kuring.body)
 
                 Button {
-                    UIPasteboard.general.string = place.address
+                    UIPasteboard.general.string = detail.address
                 } label: {
                     Image("copy", bundle: .module)
                         .font(.system(size: 12))
@@ -128,49 +154,53 @@ extension KuringMapBottomSheet {
         }
     }
 
-    /// 편의시설
+    /// 편의시설 (내부 시설 목록)
     private var amenitySection: some View {
         VStack(alignment: .leading, spacing: 20) {
-            Text("편의시설 상세 정보")
+            Text("시설 및 편의시설 상세 정보")
                 .font(.system(size: 14, weight: .medium))
                 .foregroundStyle(Color.Kuring.body)
 
-            ForEach(place.amenities) { amenity in
-                amenityCard(amenity)
+            ForEach(detail.campusPlaces) { campusPlace in
+                amenityCard(campusPlace)
             }
         }
     }
 
     /// 편의시설 영역
-    private func amenityCard(_ amenity: Amenity) -> some View {
+    private func amenityCard(_ campusPlace: CampusPlaceDetail) -> some View {
         VStack(alignment: .leading, spacing: 8) {
             HStack(spacing: 6) {
-                Image("smoke", bundle: .module)
+                let iconName = campusPlace.category
+                Image(iconName, bundle: .module)
                     .renderingMode(.template)
                     .font(.system(size: 12))
                     .foregroundStyle(Color.Kuring.primary)
-                    .padding(2)
+                    .padding(4)
                     .background(
                         RoundedRectangle(cornerRadius: 4)
                             .fill(Color.Kuring.gray100)
                     )
 
-                Text(amenity.name)
+                Text(campusPlace.name)
                     .font(.system(size: 14, weight: .medium))
                     .foregroundStyle(.black)
             }
 
-            hoursSubRow(label: "위치", value: amenity.location, emphasized: false)
+            let locationStr = "\(campusPlace.floor)층 \(campusPlace.locationDetail ?? "")"
+            hoursSubRow(label: "위치", value: locationStr, emphasized: false)
+            
+            if let quantity = campusPlace.quantity {
+                hoursSubRow(label: "수량", value: "\(quantity)개", emphasized: false)
+            }
             
             VStack(spacing: 4) {
-                hoursSubRow(label: "운영시간", value: amenity.hours.closingNote, emphasized: false)
-                hoursSubRow(label: "학기 중", value: amenity.hours.duringTerm, emphasized: true)
-                hoursSubRow(label: "방학 중", value: amenity.hours.duringVacation, emphasized: false)
+                hoursSubRow(label: "상태", value: campusPlace.currentOperatingHours.status, emphasized: true)
+                if let opens = campusPlace.currentOperatingHours.opensAt, let closes = campusPlace.currentOperatingHours.closesAt {
+                    hoursSubRow(label: "운영시간", value: "\(opens) ~ \(closes)", emphasized: false)
+                }
             }
         }
+        .padding(12)
     }
-}
-
-#Preview {
-    KuringMapBottomSheet(place: .init(id: "공학관C동", name: "공학관 C동", category: "공과대학", address: "서울특별시 광진구 능동로 120", inCampus: true, number: 21, iconUrl: nil, latitude: 37.54118, longitude: 127.079535, phone: nil, data: nil, places: [:], parentId: "konkuk"))
 }

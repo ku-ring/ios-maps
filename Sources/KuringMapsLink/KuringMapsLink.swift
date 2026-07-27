@@ -9,9 +9,19 @@ public class KuringMapsLink {
     public static var linkHost: String = ""
     public static var libraryHost: String = ""
     
-    public static var placesInKonkukUniv: [Place] {
-        get async throws {
-            try await antenna.places(parentId: "konkuk")
-        }
+    public static func fetchCategories() async throws -> MapCategoryListResponse {
+        try await antenna.categories()
+    }
+    
+    public static func fetchBuildings() async throws -> BuildingListResponse {
+        try await antenna.buildings()
+    }
+    
+    public static func fetchCampusPlaces(categories: [String]) async throws -> CampusPlaceListResponse {
+        try await antenna.campusPlaces(categories: categories)
+    }
+    
+    public static func fetchBuildingDetail(id: Int) async throws -> BuildingDetailResponse {
+        try await antenna.getBuildingDetail(id: id)
     }
 }
