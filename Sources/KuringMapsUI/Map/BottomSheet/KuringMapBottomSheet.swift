@@ -10,6 +10,7 @@ import KuringMapsLink
 
 struct KuringMapBottomSheet: View {
     let detail: BuildingDetailResponse
+    var onDismiss: (() -> Void)? = nil
     @Environment(\.dismiss) private var dismiss
 
     var body: some View {
@@ -41,7 +42,11 @@ extension KuringMapBottomSheet {
             Spacer()
 
             Button {
-                dismiss()
+                if let onDismiss {
+                    onDismiss()
+                } else {
+                    dismiss()
+                }
             } label: {
                 Image(systemName: "xmark")
                     .font(.system(size: 8, weight: .bold))
@@ -157,7 +162,7 @@ extension KuringMapBottomSheet {
     /// 편의시설 (내부 시설 목록)
     private var amenitySection: some View {
         VStack(alignment: .leading, spacing: 20) {
-            Text("시설 및 편의시설 상세 정보")
+            Text("편의시설 상세 정보")
                 .font(.system(size: 14, weight: .medium))
                 .foregroundStyle(Color.Kuring.body)
 
@@ -184,7 +189,7 @@ extension KuringMapBottomSheet {
 
                 Text(campusPlace.name)
                     .font(.system(size: 14, weight: .medium))
-                    .foregroundStyle(.black)
+                    .foregroundStyle(Color.Kuring.caption1)
             }
 
             let locationStr = "\(campusPlace.floor)층 \(campusPlace.locationDetail ?? "")"
@@ -201,6 +206,5 @@ extension KuringMapBottomSheet {
                 }
             }
         }
-        .padding(12)
     }
 }

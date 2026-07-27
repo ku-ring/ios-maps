@@ -24,6 +24,7 @@ struct CategoryPlaceListView: View {
             .padding(.top, 32)
             .padding(.bottom, 24)
         }
+        .background(Color.Kuring.bg)
     }
 
     private func placeRow(_ place: CampusPlaceItem) -> some View {

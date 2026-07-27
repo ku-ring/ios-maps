@@ -31,6 +31,7 @@ struct KuringMapSearchView: View {
 
             Spacer()
         }
+        .background(Color.Kuring.bg)
         .navigationBarBackButtonHidden(true)
         .onAppear {
             isSearchFocused = true
@@ -48,7 +49,7 @@ struct KuringMapSearchView: View {
             } label: {
                 Image(systemName: "chevron.left")
                     .renderingMode(.template)
-                    .font(.system(size: 17, weight: .medium))
+                    .font(.system(size: 18, weight: .semibold))
                     .foregroundStyle(Color.Kuring.gray600)
             }
 
@@ -67,22 +68,31 @@ struct KuringMapSearchView: View {
                         viewModel.searchText = ""
                         viewModel.searchResults = []
                     } label: {
-                        Image("search2", bundle: .module)
+                        Image(systemName: "xmark.circle.fill")
+                            .font(.system(size: 16))
+                            .foregroundStyle(Color.Kuring.gray400)
                     }
                 } else {
                     Image("search2", bundle: .module)
+                        .renderingMode(.template)
+                        .foregroundStyle(Color.Kuring.gray400)
                 }
             }
             .padding(.leading, 16)
             .padding(.trailing, 12)
-            .padding(.vertical, 8)
+            .padding(.vertical, 11)
             .background(
                 RoundedRectangle(cornerRadius: 12, style: .continuous)
                     .fill(Color.Kuring.gray100)
             )
         }
         .padding(.horizontal, 20)
-        .padding(.vertical, 8)
+        .padding(.top, 8)
+        .padding(.bottom, 12)
+        .background(
+            Color.Kuring.bg
+                .ignoresSafeArea(edges: .top)
+        )
     }
 
     // MARK: - Empty state (no recent searches)
@@ -137,6 +147,7 @@ struct KuringMapSearchView: View {
         HStack(spacing: 12) {
             Image(item.iconName, bundle: .module)
                 .renderingMode(.template)
+                .resizable()
                 .frame(width: 20, height: 20)
                 .foregroundStyle(Color.Kuring.gray300)
                 .padding(4)
@@ -183,6 +194,7 @@ struct KuringMapSearchView: View {
         HStack(spacing: 8) {
             Image("building", bundle: .module)
                 .renderingMode(.template)
+                .resizable()
                 .frame(width: 20, height: 20)
                 .foregroundStyle(Color.Kuring.gray300)
                 .padding(4)

@@ -50,7 +50,7 @@ public struct KuringMap: View {
                     KuringMapSearchView(viewModel: viewModel) { building in
                         self.path.removeLast()
                         Task {
-                            await viewModel.selectBuilding(id: building.id)
+                            await viewModel.selectSearchResult(building)
                         }
                     }
                 }
@@ -61,14 +61,18 @@ public struct KuringMap: View {
                 await viewModel.loadInitialData()
             }
         }
-        .sheet(isPresented: Binding(
-            get: { viewModel.showBottomSheet },
-            set: { if !$0 { viewModel.deselectBuilding() } }
-        )) {
-            if let detail = viewModel.selectedBuildingDetail {
-                KuringMapBottomSheet(detail: detail)
+        .sheet(item: $viewModel.bottomSheetState) { state in
+            switch state {
+            case .list(let places):
+                CategoryPlaceListView(places: places, viewModel: viewModel)
                     .presentationDetents([.medium, .large])
                     .presentationDragIndicator(.visible)
+            case .detail(let detail, let parentList):
+                KuringMapBottomSheet(detail: detail) {
+                    viewModel.dismissDetailView(parentList: parentList)
+                }
+                .presentationDetents([.medium, .large])
+                .presentationDragIndicator(.visible)
             }
         }
     }
@@ -109,15 +113,29 @@ public struct KuringMap: View {
 extension KuringMap {
     /// 검색 + 카테고리칩 영역
     private var topSearchArea: some View {
-        VStack(spacing: 12) {
-            searchBar
+        VStack(spacing: 0) {
+            switch viewModel.searchBarState {
+            case .normal:
+                searchBar
+                    .padding(.top, 8)
+                    .padding(.bottom, 12)
+            case .active(let keyword):
+                activeSearchBar(keyword: keyword)
+                    .padding(.top, 8)
+                    .padding(.bottom, 12)
+                    .background(
+                        Color.Kuring.bg
+                            .ignoresSafeArea(edges: .top)
+                    )
+            }
+            
             categoryPills
+            
             Spacer()
         }
-        .padding(.top, 8)
     }
     
-    /// 검색창
+    /// 검색창 (일반 상태)
     private var searchBar: some View {
         HStack(spacing: 8) {
             TextField("건물명 및 위치 검색", text: $viewModel.searchText)
@@ -141,6 +159,48 @@ extension KuringMap {
         }
     }
     
+    /// 검색창 (활성화/키워드 입력 상태)
+    private func activeSearchBar(keyword: String) -> some View {
+        HStack(spacing: 12) {
+            // 뒤로가기 버튼
+            Button {
+                viewModel.tapBackOnSearchBar()
+            } label: {
+                Image(systemName: "chevron.left")
+                    .renderingMode(.template)
+                    .font(.system(size: 18, weight: .semibold))
+                    .foregroundStyle(Color.Kuring.gray600)
+            }
+            
+            // 검색 키워드 표시창
+            HStack(spacing: 8) {
+                TextField("", text: .constant(keyword))
+                    .font(.system(size: 16, weight: .medium))
+                    .foregroundStyle(Color.Kuring.caption1)
+                    .disabled(true)
+                
+                Spacer()
+                
+                // 검색 화면 진입용 X 버튼
+                Button {
+                    viewModel.tapClearOnSearchBar()
+                    path.append(.search)
+                } label: {
+                    Image(systemName: "xmark.circle.fill")
+                        .font(.system(size: 16))
+                        .foregroundStyle(Color.Kuring.gray400)
+                }
+            }
+            .padding(.horizontal, 16)
+            .padding(.vertical, 11)
+            .background(
+                RoundedRectangle(cornerRadius: 12, style: .continuous)
+                    .fill(Color.Kuring.gray100)
+            )
+        }
+        .padding(.horizontal, 20)
+    }
+    
     /// 카테고리칩 ScrollView
     private var categoryPills: some View {
         ScrollView(.horizontal, showsIndicators: false) {
@@ -156,11 +216,12 @@ extension KuringMap {
     }
     
     /// 카테고리칩 컴포넌트
+    @ViewBuilder
     private func categoryPill(_ category: MapCategory) -> some View {
         let isSelected = viewModel.selectedCategoryNames.contains(category.name)
         let iconName = category.name
         
-        return HStack(spacing: 6) {
+        HStack(spacing: 6) {
             Image(iconName, bundle: .module)
                 .renderingMode(.template)
                 .font(.system(size: 13))
@@ -185,7 +246,6 @@ extension KuringMap {
         }
     }
     
-    // MARK: - Library Capsule (existing)
     private var libraryCapsule: some View {
         VStack {
             Spacer()
