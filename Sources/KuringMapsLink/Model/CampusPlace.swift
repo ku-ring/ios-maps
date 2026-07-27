@@ -8,40 +8,98 @@
 import Foundation
 
 // 시설(카페, 프린터, 휴게공간 등) 하나
-struct CampusPlaceDetail: Codable {
-    let id: Int64
-    let name: String
-    let category: String
-    let categoryKorName: String
-    let imageUrl: String?
-    let locationType: LocationType
-    let floor: String
-    let locationDetail: String?
-    let quantity: Int?
-    let currentOperatingHours: CurrentOperatingHours
-    let externalUrl: String?
+public struct CampusPlaceDetail: Codable, Identifiable, Hashable {
+    public let id: Int64
+    public let name: String
+    public let category: String
+    public let categoryKorName: String
+    public let imageUrl: String?
+    public let locationType: LocationType
+    public let floor: String
+    public let locationDetail: String?
+    public let quantity: Int?
+    public let currentOperatingHours: CurrentOperatingHours
+    public let externalUrl: String?
+    
+    public init(
+        id: Int64,
+        name: String,
+        category: String,
+        categoryKorName: String,
+        imageUrl: String?,
+        locationType: LocationType,
+        floor: String,
+        locationDetail: String?,
+        quantity: Int?,
+        currentOperatingHours: CurrentOperatingHours,
+        externalUrl: String?
+    ) {
+        self.id = id
+        self.name = name
+        self.category = category
+        self.categoryKorName = categoryKorName
+        self.imageUrl = imageUrl
+        self.locationType = locationType
+        self.floor = floor
+        self.locationDetail = locationDetail
+        self.quantity = quantity
+        self.currentOperatingHours = currentOperatingHours
+        self.externalUrl = externalUrl
+    }
 }
 
-struct CampusPlaceItem: Codable {
-    let id: Int
-    let name: String
-    let category: String
-    let categoryKorName: String
-    let imageUrl: String?
-    let locationType: LocationType
-    let floor: String
-    let locationDetail: String?
-    let quantity: Int?
-    let currentOperatingHours: CurrentOperatingHours
-    let externalUrl: String?
-    let building: Building
+public struct CampusPlaceItem: Codable, Identifiable, Hashable {
+    public let id: Int
+    public let name: String
+    public let category: String
+    public let categoryKorName: String
+    public let imageUrl: String?
+    public let locationType: LocationType
+    public let floor: String
+    public let locationDetail: String?
+    public let quantity: Int?
+    public let currentOperatingHours: CurrentOperatingHours
+    public let externalUrl: String?
+    public let building: Building
+    
+    public init(
+        id: Int,
+        name: String,
+        category: String,
+        categoryKorName: String,
+        imageUrl: String?,
+        locationType: LocationType,
+        floor: String,
+        locationDetail: String?,
+        quantity: Int?,
+        currentOperatingHours: CurrentOperatingHours,
+        externalUrl: String?,
+        building: Building
+    ) {
+        self.id = id
+        self.name = name
+        self.category = category
+        self.categoryKorName = categoryKorName
+        self.imageUrl = imageUrl
+        self.locationType = locationType
+        self.floor = floor
+        self.locationDetail = locationDetail
+        self.quantity = quantity
+        self.currentOperatingHours = currentOperatingHours
+        self.externalUrl = externalUrl
+        self.building = building
+    }
 }
 
-struct CampusPlaceListResponse: Codable {
-    let campusPlaces: [CampusPlaceItem]
+public struct CampusPlaceListResponse: Codable {
+    public let campusPlaces: [CampusPlaceItem]
+    
+    public init(campusPlaces: [CampusPlaceItem]) {
+        self.campusPlaces = campusPlaces
+    }
 }
 
-enum LocationType: String, Codable {
+public enum LocationType: String, Codable, Hashable {
     case INDOOR
     case OUTDOOR
 }

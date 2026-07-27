@@ -12,16 +12,19 @@ final class KuringAnnotation: NSObject, MKAnnotation {
     let title: String?
     let subtitle: String?
     let iconName: String
+    let buildingId: Int
 
     init(
         coordinate: CLLocationCoordinate2D,
         title: String?,
         subtitle: String?,
-        iconName: String
+        iconName: String,
+        buildingId: Int
     ) {
         self.coordinate = coordinate
         self.title = title
         self.subtitle = subtitle
         self.iconName = iconName
+        self.buildingId = buildingId
     }
 }
