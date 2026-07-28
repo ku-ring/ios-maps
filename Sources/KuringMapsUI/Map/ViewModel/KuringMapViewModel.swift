@@ -60,8 +60,23 @@ public class KuringMapViewModel: ObservableObject {
     @Published public var searchResults: [Building] = []
     @Published public var recentSearches: [RecentSearch] = []
     
+    private var cancellables = Set<AnyCancellable>()
+    
     public init() {
         self.categories = Self.defaultCategories
+        setupSearchDebounce()
+    }
+    
+    private func setupSearchDebounce() {
+        $searchText
+            .debounce(for: .milliseconds(300), scheduler: RunLoop.main)
+            .removeDuplicates()
+            .sink { [weak self] query in
+                Task {
+                    await self?.search(by: query)
+                }
+            }
+            .store(in: &cancellables)
     }
     
     public static let defaultCategories: [MapCategory] = [
@@ -222,18 +237,31 @@ public class KuringMapViewModel: ObservableObject {
         self.searchText = ""
     }
     
-    public func performSearch(_ query: String) {
-        guard !query.isEmpty else {
-            searchResults = []
+    public func search(by query: String) async {
+        let trimmed = query.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmed.isEmpty else {
+            self.searchResults = []
             return
         }
-        searchResults = allBuildings.filter { $0.name.localizedCaseInsensitiveContains(query) }
+        
+        do {
+            let response = try await KuringMapsLink.searchBuildings(by: trimmed)
+            self.searchResults = response.buildings
+        } catch {
+            print("Failed to search buildings: \(error)")
+            self.searchResults = allBuildings.filter { $0.name.localizedCaseInsensitiveContains(trimmed) }
+        }
     }
     
     public func commitSearch(_ query: String) {
-        guard !query.isEmpty else { return }
+        guard !query.isEmpty else {
+            return
+        }
         if !recentSearches.contains(where: { $0.query == query }) {
             recentSearches.insert(RecentSearch(query: query, iconName: "building"), at: 0)
+        }
+        Task {
+            await search(by: query)
         }
     }
 }

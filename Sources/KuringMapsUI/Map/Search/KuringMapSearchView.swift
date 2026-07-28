@@ -36,12 +36,8 @@ struct KuringMapSearchView: View {
         .onAppear {
             isSearchFocused = true
         }
-        .onChange(of: viewModel.searchText) { _, newValue in
-            viewModel.performSearch(newValue)
-        }
     }
 
-    // MARK: - Search bar
     private var searchBar: some View {
         HStack(spacing: 12) {
             Button {
@@ -71,16 +67,18 @@ struct KuringMapSearchView: View {
                         Image(systemName: "xmark.circle.fill")
                             .font(.system(size: 16))
                             .foregroundStyle(Color.Kuring.gray400)
+                            .frame(width: 20, height: 20)
                     }
                 } else {
                     Image("search2", bundle: .module)
                         .renderingMode(.template)
                         .foregroundStyle(Color.Kuring.gray400)
+                        .frame(width: 20, height: 20)
                 }
             }
             .padding(.leading, 16)
             .padding(.trailing, 12)
-            .padding(.vertical, 11)
+            .padding(.vertical, 10)
             .background(
                 RoundedRectangle(cornerRadius: 12, style: .continuous)
                     .fill(Color.Kuring.gray100)
@@ -95,7 +93,6 @@ struct KuringMapSearchView: View {
         )
     }
 
-    // MARK: - Empty state (no recent searches)
     private var emptyState: some View {
         VStack(spacing: 16) {
             Spacer()

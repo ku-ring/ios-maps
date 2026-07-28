@@ -34,6 +34,15 @@ class Antenna {
         return response.data
     }
     
+    func search(by keyword: String) async throws -> BuildingListResponse {
+        let response: Response<BuildingListResponse> = try await satellite.response(
+            for: "api/v2/maps/buildings/search",
+            httpMethod: .get,
+            queryItems: [.init(name: "keyword", value: keyword)]
+        )
+        return response.data
+    }
+    
     func campusPlaces(categories: [String]) async throws -> CampusPlaceListResponse {
         let response: Response<CampusPlaceListResponse> = try await satellite.response(
             for: "api/v2/maps/campus-places",

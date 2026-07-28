@@ -144,6 +144,9 @@ extension KuringMap {
                 .disabled(true)
             
             Image("search2", bundle: .module)
+                .renderingMode(.template)
+                .foregroundStyle(Color.Kuring.gray400)
+                .frame(width: 20, height: 20)
         }
         .padding(.horizontal, 16)
         .padding(.vertical, 10)
@@ -169,34 +172,33 @@ extension KuringMap {
                 Image(systemName: "chevron.left")
                     .renderingMode(.template)
                     .font(.system(size: 18, weight: .semibold))
-                    .foregroundStyle(Color.Kuring.gray600)
+                    .foregroundStyle(.black)
             }
             
             // 검색 키워드 표시창
             HStack(spacing: 8) {
                 TextField("", text: .constant(keyword))
                     .font(.system(size: 16, weight: .medium))
-                    .foregroundStyle(Color.Kuring.caption1)
+                    .foregroundStyle(Color.Kuring.title)
                     .disabled(true)
                 
                 Spacer()
                 
-                // 검색 화면 진입용 X 버튼
-                Button {
-                    viewModel.tapClearOnSearchBar()
-                    path.append(.search)
-                } label: {
-                    Image(systemName: "xmark.circle.fill")
-                        .font(.system(size: 16))
-                        .foregroundStyle(Color.Kuring.gray400)
-                }
+                Image(systemName: "xmark.circle.fill")
+                    .font(.system(size: 16))
+                    .foregroundStyle(Color.Kuring.gray400)
+                    .frame(width: 20, height: 20)
             }
             .padding(.horizontal, 16)
-            .padding(.vertical, 11)
+            .padding(.vertical, 10)
             .background(
                 RoundedRectangle(cornerRadius: 12, style: .continuous)
                     .fill(Color.Kuring.gray100)
             )
+            .onTapGesture {
+                viewModel.tapClearOnSearchBar()
+                path.append(.search)
+            }
         }
         .padding(.horizontal, 20)
     }

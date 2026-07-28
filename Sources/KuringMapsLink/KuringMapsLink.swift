@@ -17,6 +17,10 @@ public class KuringMapsLink {
         try await antenna.buildings()
     }
     
+    public static func searchBuildings(by keyword: String) async throws -> BuildingListResponse {
+        try await antenna.search(by: keyword)
+    }
+    
     public static func fetchCampusPlaces(categories: [String]) async throws -> CampusPlaceListResponse {
         try await antenna.campusPlaces(categories: categories)
     }
