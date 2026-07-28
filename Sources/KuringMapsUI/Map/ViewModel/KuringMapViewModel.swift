@@ -21,14 +21,22 @@ public enum SearchBarState: Equatable {
     }
 }
 
+public enum ParentListType: Equatable {
+    case places([CampusPlaceItem])
+    case buildings([BuildingDetailResponse])
+}
+
 public enum MapBottomSheetState: Identifiable, Equatable {
     case list(places: [CampusPlaceItem])
-    case detail(response: BuildingDetailResponse, parentList: [CampusPlaceItem]?)
+    case buildingList(buildings: [BuildingDetailResponse])
+    case detail(response: BuildingDetailResponse, parentList: ParentListType?)
     
     public var id: String {
         switch self {
         case .list:
             return "list"
+        case .buildingList:
+            return "buildingList"
         case .detail(let response, _):
             return "detail-\(response.id)"
         }
@@ -59,6 +67,7 @@ public class KuringMapViewModel: ObservableObject {
     @Published public var searchText: String = ""
     @Published public var searchResults: [Building] = []
     @Published public var recentSearches: [RecentSearch] = []
+    private var activeSearchBuildingDetails: [BuildingDetailResponse] = []
     
     private var cancellables = Set<AnyCancellable>()
     
@@ -115,35 +124,53 @@ public class KuringMapViewModel: ObservableObject {
             selectedCategoryNames.insert(category.name)
         }
         
-        if selectedCategoryNames.isEmpty {
-            self.searchBarState = .normal
-            self.bottomSheetState = nil
-            self.campusPlaces = []
-        } else {
-            self.searchBarState = .active(keyword: category.korName)
-            Task {
-                await fetchCampusPlacesForSelectedCategories()
-            }
+        Task {
+            await fetchCampusPlacesForSelectedCategories()
         }
     }
     
     /// 선택된 카테고리에 대한 시설들 가져오기
     private func fetchCampusPlacesForSelectedCategories() async {
-        guard !selectedCategoryNames.isEmpty else {
-            self.campusPlaces = []
-            self.bottomSheetState = nil
-            return
-        }
-        
-        do {
-            let campusPlaceResponse = try await KuringMapsLink.fetchCampusPlaces(categories: Array(selectedCategoryNames))
-            self.campusPlaces = campusPlaceResponse.campusPlaces
-            
-            self.bottomSheetState = .list(places: self.campusPlaces)
-        } catch {
-            print("Failed to fetch campus places: \(error)")
-            self.campusPlaces = []
-            self.bottomSheetState = nil
+        if selectedCategoryNames.isEmpty {
+            if !searchResults.isEmpty {
+                self.campusPlaces = []
+                self.bottomSheetState = .buildingList(buildings: self.activeSearchBuildingDetails)
+            } else {
+                self.searchBarState = .normal
+                self.bottomSheetState = nil
+                self.campusPlaces = []
+            }
+        } else {
+            if !searchResults.isEmpty {
+                do {
+                    let response = try await KuringMapsLink.fetchCampusPlaces(categories: Array(selectedCategoryNames))
+                    let searchBuildingIds = Set(searchResults.map { $0.id })
+                    let filtered = response.campusPlaces.filter { item in
+                        searchBuildingIds.contains(item.building.id)
+                    }
+                    self.campusPlaces = filtered
+                    self.bottomSheetState = .list(places: filtered)
+                } catch {
+                    print("Failed to fetch campus places: \(error)")
+                    self.campusPlaces = []
+                    self.bottomSheetState = .list(places: [])
+                }
+            } else {
+                if let firstCategoryName = selectedCategoryNames.first,
+                   let mapCategory = categories.first(where: { $0.name == firstCategoryName }) {
+                    self.searchBarState = .active(keyword: mapCategory.korName)
+                }
+                
+                do {
+                    let response = try await KuringMapsLink.fetchCampusPlaces(categories: Array(selectedCategoryNames))
+                    self.campusPlaces = response.campusPlaces
+                    self.bottomSheetState = .list(places: self.campusPlaces)
+                } catch {
+                    print("Failed to fetch campus places: \(error)")
+                    self.campusPlaces = []
+                    self.bottomSheetState = nil
+                }
+            }
         }
     }
     
@@ -160,7 +187,7 @@ public class KuringMapViewModel: ObservableObject {
             let detail = try await KuringMapsLink.fetchBuildingDetail(id: id)
             self.selectedBuildingDetail = detail
             
-            let parentList = selectedCategoryNames.isEmpty ? nil : self.campusPlaces
+            let parentList: ParentListType? = selectedCategoryNames.isEmpty ? nil : .places(self.campusPlaces)
             self.bottomSheetState = .detail(response: detail, parentList: parentList)
         } catch {
             print("Failed to fetch building detail: \(error)")
@@ -175,17 +202,41 @@ public class KuringMapViewModel: ObservableObject {
         do {
             let detail = try await KuringMapsLink.fetchBuildingDetail(id: place.building.id)
             self.selectedBuildingDetail = detail
-            self.bottomSheetState = .detail(response: detail, parentList: self.campusPlaces)
+            self.bottomSheetState = .detail(response: detail, parentList: .places(self.campusPlaces))
         } catch {
             print("Failed to fetch building detail: \(error)")
         }
         self.isLoadingBuildingDetail = false
     }
     
+    /// 건물 바텀시트에서 선택
+    public func selectBuildingFromList(_ building: BuildingDetailResponse) {
+        self.selectedBuilding = Building(
+            id: building.id,
+            name: building.name,
+            address: building.address,
+            latitude: building.latitude,
+            longitude: building.longitude
+        )
+        self.selectedBuildingDetail = building
+        
+        var parentList: ParentListType? = nil
+        if case .buildingList(let list) = bottomSheetState {
+            parentList = .buildings(list)
+        }
+        
+        self.bottomSheetState = .detail(response: building, parentList: parentList)
+    }
+    
     /// 상세 정보 뷰에서 dismiss
-    public func dismissDetailView(parentList: [CampusPlaceItem]?) {
+    public func dismissDetailView(parentList: ParentListType?) {
         if let parentList {
-            self.bottomSheetState = .list(places: parentList)
+            switch parentList {
+            case .places(let list):
+                self.bottomSheetState = .list(places: list)
+            case .buildings(let list):
+                self.bottomSheetState = .buildingList(buildings: list)
+            }
         } else {
             self.bottomSheetState = nil
             self.selectedBuilding = nil
@@ -208,7 +259,23 @@ public class KuringMapViewModel: ObservableObject {
         do {
             let detail = try await KuringMapsLink.fetchBuildingDetail(id: building.id)
             self.selectedBuildingDetail = detail
-            self.bottomSheetState = .detail(response: detail, parentList: nil)
+            
+            let detailResponses = try await withThrowingTaskGroup(of: BuildingDetailResponse.self) { group in
+                for searchResult in searchResults {
+                    group.addTask {
+                        try await KuringMapsLink.fetchBuildingDetail(id: searchResult.id)
+                    }
+                }
+                
+                var results: [BuildingDetailResponse] = []
+                for try await res in group {
+                    results.append(res)
+                }
+                return results.sorted(by: { $0.name < $1.name })
+            }
+            
+            self.activeSearchBuildingDetails = detailResponses
+            self.bottomSheetState = .detail(response: detail, parentList: .buildings(detailResponses))
         } catch {
             print("Failed to fetch building detail: \(error)")
         }
@@ -220,6 +287,8 @@ public class KuringMapViewModel: ObservableObject {
         self.searchBarState = .normal
         self.selectedCategoryNames.removeAll()
         self.campusPlaces.removeAll()
+        self.searchResults.removeAll()
+        self.activeSearchBuildingDetails.removeAll()
         self.bottomSheetState = nil
         self.selectedBuilding = nil
         self.selectedBuildingDetail = nil
@@ -231,6 +300,8 @@ public class KuringMapViewModel: ObservableObject {
         self.searchBarState = .normal
         self.selectedCategoryNames.removeAll()
         self.campusPlaces.removeAll()
+        self.searchResults.removeAll()
+        self.activeSearchBuildingDetails.removeAll()
         self.bottomSheetState = nil
         self.selectedBuilding = nil
         self.selectedBuildingDetail = nil
@@ -246,11 +317,21 @@ public class KuringMapViewModel: ObservableObject {
         
         do {
             let response = try await KuringMapsLink.searchBuildings(by: trimmed)
-            self.searchResults = response.buildings
+            self.searchResults = sortedSearchResults(response.buildings)
         } catch {
             print("Failed to search buildings: \(error)")
-            self.searchResults = allBuildings.filter { $0.name.localizedCaseInsensitiveContains(trimmed) }
+            let filtered = allBuildings.filter { $0.name.localizedCaseInsensitiveContains(trimmed) }
+            self.searchResults = sortedSearchResults(filtered)
         }
+    }
+    
+    private func sortedSearchResults(_ buildings: [Building]) -> [Building] {
+        let recentQueries = Set(recentSearches.map { $0.query })
+        
+        let matched = buildings.filter { recentQueries.contains($0.name) }
+        let others = buildings.filter { !recentQueries.contains($0.name) }
+        
+        return matched + others
     }
     
     public func commitSearch(_ query: String) {

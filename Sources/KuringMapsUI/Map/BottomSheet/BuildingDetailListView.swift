@@ -1,20 +1,20 @@
 //
-//  CategoryPlaceListView.swift
+//  BuildingDetailListView.swift
 //  package-kuring-maps
 //
-//  Created by Jung Hwan Park on 7/27/26.
+//  Created by Antigravity on 7/28/26.
 //
 
 import SwiftUI
 import KuringMapsLink
 
-struct CategoryPlaceListView: View {
-    let places: [CampusPlaceItem]
+struct BuildingDetailListView: View {
+    let buildings: [BuildingDetailResponse]
     @ObservedObject var viewModel: KuringMapViewModel
 
     var body: some View {
         Group {
-            if places.isEmpty {
+            if buildings.isEmpty {
                 VStack(spacing: 16) {
                     Spacer()
                     Image("emptysearchimage", bundle: .module)
@@ -30,8 +30,8 @@ struct CategoryPlaceListView: View {
             } else {
                 ScrollView {
                     VStack(alignment: .leading, spacing: 4) {
-                        ForEach(places) { place in
-                            placeRow(place)
+                        ForEach(buildings) { building in
+                            buildingRow(building)
                             Divider()
                                 .padding(.horizontal, 20)
                         }
@@ -44,14 +44,12 @@ struct CategoryPlaceListView: View {
         .background(Color.Kuring.bg)
     }
 
-    private func placeRow(_ place: CampusPlaceItem) -> some View {
+    private func buildingRow(_ building: BuildingDetailResponse) -> some View {
         Button {
-            Task {
-                await viewModel.selectPlaceFromList(place)
-            }
+            viewModel.selectBuildingFromList(building)
         } label: {
             HStack(spacing: 14) {
-                if let imageUrlString = place.imageUrl, let url = URL(string: imageUrlString) {
+                if let imageUrlString = building.imageUrl, let url = URL(string: imageUrlString) {
                     AsyncImage(url: url) { image in
                         image
                             .resizable()
@@ -63,37 +61,37 @@ struct CategoryPlaceListView: View {
                     .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
                 } else {
                     RoundedRectangle(cornerRadius: 8, style: .continuous)
-                        .fill(Color.Kuring.primary.opacity(0.1))
+                        .fill(Color.Kuring.gray100)
                         .frame(width: 50, height: 50)
                         .overlay(
-                            Image(place.category, bundle: .module)
+                            Image("building", bundle: .module)
                                 .renderingMode(.template)
                                 .font(.system(size: 16))
-                                .foregroundStyle(Color.Kuring.primary)
+                                .foregroundStyle(Color.Kuring.gray300)
                         )
                 }
 
                 VStack(alignment: .leading, spacing: 4) {
                     HStack(alignment: .firstTextBaseline, spacing: 6) {
-                        Text(place.name)
+                        Text(building.name)
                             .font(.system(size: 16, weight: .medium))
                             .foregroundStyle(Color.Kuring.body)
                         
-                        Text(place.categoryKorName)
+                        Text("부속건물")
                             .font(.system(size: 14))
                             .foregroundStyle(Color.Kuring.caption1)
                     }
 
                     HStack(spacing: 8) {
-                        let locationStr = "\(place.locationDetail ?? "")"
-                        Text(locationStr)
+                        Text(building.address)
                             .font(.system(size: 14))
                             .foregroundStyle(Color.Kuring.body)
+                            .lineLimit(1)
                         
                         Divider()
                             .padding(.vertical, 5)
                         
-                        let hoursStr = formatHours(place.currentOperatingHours)
+                        let hoursStr = formatHours(building.currentOperatingHours)
                         Text(hoursStr)
                             .font(.system(size: 14))
                             .foregroundStyle(Color.Kuring.body)
@@ -113,7 +111,7 @@ struct CategoryPlaceListView: View {
         }
         .buttonStyle(.plain)
     }
-
+    
     private func formatHours(_ hours: CurrentOperatingHours) -> String {
         if let opens = hours.opensAt, let closes = hours.closesAt {
             return "\(opens) ~ \(closes)"

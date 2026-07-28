@@ -19,6 +19,8 @@ class CampusMapViewController: UIViewController {
     private var lastCategoryNames: Set<String> = []
     private var lastBuildingsCount: Int = 0
     private var lastCampusPlacesCount: Int = 0
+    private var lastSearchResultsCount: Int = 0
+    private var lastIsSearchActive: Bool = false
     
     init(viewModel: KuringMapViewModel) {
         self.viewModel = viewModel
@@ -74,30 +76,50 @@ class CampusMapViewController: UIViewController {
         let categoryNames = viewModel.selectedCategoryNames
         let buildingsCount = viewModel.allBuildings.count
         let campusPlacesCount = viewModel.campusPlaces.count
+        let searchResultsCount = viewModel.searchResults.count
+        let isSearchActive = viewModel.searchBarState.isActive
         
         if lastCategoryNames == categoryNames &&
             lastBuildingsCount == buildingsCount &&
-            lastCampusPlacesCount == campusPlacesCount {
+            lastCampusPlacesCount == campusPlacesCount &&
+            lastSearchResultsCount == searchResultsCount &&
+            lastIsSearchActive == isSearchActive {
             return
         }
         
         lastCategoryNames = categoryNames
         lastBuildingsCount = buildingsCount
         lastCampusPlacesCount = campusPlacesCount
+        lastSearchResultsCount = searchResultsCount
+        lastIsSearchActive = isSearchActive
         
         mapView.removeAnnotations(mapView.annotations)
         
         if viewModel.selectedCategoryNames.isEmpty {
-            // 모든 건물 보여주기
-            for building in viewModel.allBuildings {
-                addAnnotation(
-                    buildingId: building.id,
-                    latitudeValue: building.latitude,
-                    longitudeValue: building.longitude,
-                    title: building.name,
-                    subtitle: "",
-                    iconName: "building"
-                )
+            if isSearchActive {
+                // 검색 결과 건물들만 보여주기
+                for building in viewModel.searchResults {
+                    addAnnotation(
+                        buildingId: building.id,
+                        latitudeValue: building.latitude,
+                        longitudeValue: building.longitude,
+                        title: building.name,
+                        subtitle: "",
+                        iconName: "building"
+                    )
+                }
+            } else {
+                // 모든 건물 보여주기
+                for building in viewModel.allBuildings {
+                    addAnnotation(
+                        buildingId: building.id,
+                        latitudeValue: building.latitude,
+                        longitudeValue: building.longitude,
+                        title: building.name,
+                        subtitle: "",
+                        iconName: "building"
+                    )
+                }
             }
         } else {
             // 필터된 건물만 보여주기

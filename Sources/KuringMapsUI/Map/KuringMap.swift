@@ -67,6 +67,10 @@ public struct KuringMap: View {
                 CategoryPlaceListView(places: places, viewModel: viewModel)
                     .presentationDetents([.medium, .large])
                     .presentationDragIndicator(.visible)
+            case .buildingList(let buildings):
+                BuildingDetailListView(buildings: buildings, viewModel: viewModel)
+                    .presentationDetents([.medium, .large])
+                    .presentationDragIndicator(.visible)
             case .detail(let detail, let parentList):
                 KuringMapBottomSheet(detail: detail) {
                     viewModel.dismissDetailView(parentList: parentList)
@@ -138,7 +142,7 @@ extension KuringMap {
     /// 검색창 (일반 상태)
     private var searchBar: some View {
         HStack(spacing: 8) {
-            TextField("건물명 및 위치 검색", text: $viewModel.searchText)
+            TextField("건물명 및 위치 검색", text: .constant(""))
                 .font(.system(size: 16, weight: .medium))
                 .foregroundStyle(Color.Kuring.caption1)
                 .disabled(true)

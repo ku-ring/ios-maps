@@ -22,7 +22,11 @@ struct KuringMapSearchView: View {
             searchBar
 
             if isSearching {
-                resultsList
+                if viewModel.searchResults.isEmpty {
+                    noResultsState
+                } else {
+                    resultsList
+                }
             } else if viewModel.recentSearches.isEmpty {
                 emptyState
             } else {
@@ -41,6 +45,7 @@ struct KuringMapSearchView: View {
     private var searchBar: some View {
         HStack(spacing: 12) {
             Button {
+                viewModel.searchText = ""
                 dismiss()
             } label: {
                 Image(systemName: "chevron.left")
@@ -101,10 +106,36 @@ struct KuringMapSearchView: View {
                 .resizable()
                 .frame(width: 150, height: 150)
 
-            Text("최근 검색어가 아직 없습니다.")
-                .font(.system(size: 14))
-                .foregroundStyle(Color.Kuring.caption1)
-                .padding(.top, 12)
+            VStack {
+                Text("최근 검색어가 아직 없습니다.")
+                    .font(.system(size: 14))
+                    .foregroundStyle(Color.Kuring.caption1)
+            }
+            .frame(height: 50, alignment: .top)
+            .padding(.top, 12)
+
+            Spacer()
+            Spacer()
+        }
+    }
+
+    private var noResultsState: some View {
+        VStack(spacing: 16) {
+            Spacer()
+
+            Image("emptysearchimage", bundle: .module)
+                .resizable()
+                .frame(width: 150, height: 150)
+
+            VStack(spacing: 4) {
+                Text("관련 검색 결과가 없습니다.")
+                Text("다른 검색어를 입력해주세요.")
+            }
+            .font(.system(size: 14))
+            .foregroundStyle(Color.Kuring.caption1)
+            .multilineTextAlignment(.center)
+            .frame(height: 50, alignment: .top)
+            .padding(.top, 12)
 
             Spacer()
             Spacer()
@@ -142,7 +173,7 @@ struct KuringMapSearchView: View {
 
     private func recentSearchRow(_ item: RecentSearch) -> some View {
         HStack(spacing: 12) {
-            Image(item.iconName, bundle: .module)
+            Image("recentsearched-clock", bundle: .module)
                 .renderingMode(.template)
                 .resizable()
                 .frame(width: 20, height: 20)
@@ -176,7 +207,6 @@ struct KuringMapSearchView: View {
         }
     }
 
-    // MARK: - Autocomplete results
     private var resultsList: some View {
         ScrollView {
             LazyVStack(spacing: 0) {
@@ -188,8 +218,11 @@ struct KuringMapSearchView: View {
     }
 
     private func resultRow(_ building: Building) -> some View {
-        HStack(spacing: 8) {
-            Image("building", bundle: .module)
+        let isInHistory = viewModel.recentSearches.contains { $0.query == building.name }
+        let iconName = isInHistory ? "recentsearched-clock" : "building"
+        
+        return HStack(spacing: 8) {
+            Image(iconName, bundle: .module)
                 .renderingMode(.template)
                 .resizable()
                 .frame(width: 20, height: 20)
