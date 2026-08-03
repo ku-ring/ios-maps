@@ -93,7 +93,7 @@ struct CategoryPlaceListView: View {
                         Divider()
                             .padding(.vertical, 5)
                         
-                        let hoursStr = formatHours(place.currentOperatingHours)
+                        let hoursStr = place.operatingHours.formattedCurrentHours
                         Text(hoursStr)
                             .font(.system(size: 14))
                             .foregroundStyle(Color.Kuring.body)
@@ -112,13 +112,5 @@ struct CategoryPlaceListView: View {
             .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
-    }
-
-    private func formatHours(_ hours: CurrentOperatingHours) -> String {
-        if let opens = hours.opensAt, let closes = hours.closesAt {
-            return "\(opens) ~ \(closes)"
-        } else {
-            return hours.status
-        }
-    }
+     }
 }

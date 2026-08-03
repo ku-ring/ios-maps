@@ -15,10 +15,10 @@ public struct CampusPlaceDetail: Codable, Identifiable, Hashable {
     public let categoryKorName: String
     public let imageUrl: String?
     public let locationType: LocationType
-    public let floor: String
+    public let floor: String?
     public let locationDetail: String?
     public let quantity: Int?
-    public let currentOperatingHours: CurrentOperatingHours
+    public let operatingHours: [OperatingHour]
     public let externalUrl: String?
     
     public init(
@@ -28,10 +28,10 @@ public struct CampusPlaceDetail: Codable, Identifiable, Hashable {
         categoryKorName: String,
         imageUrl: String?,
         locationType: LocationType,
-        floor: String,
+        floor: String?,
         locationDetail: String?,
         quantity: Int?,
-        currentOperatingHours: CurrentOperatingHours,
+        operatingHours: [OperatingHour],
         externalUrl: String?
     ) {
         self.id = id
@@ -43,7 +43,7 @@ public struct CampusPlaceDetail: Codable, Identifiable, Hashable {
         self.floor = floor
         self.locationDetail = locationDetail
         self.quantity = quantity
-        self.currentOperatingHours = currentOperatingHours
+        self.operatingHours = operatingHours
         self.externalUrl = externalUrl
     }
 }
@@ -55,10 +55,10 @@ public struct CampusPlaceItem: Codable, Identifiable, Hashable {
     public let categoryKorName: String
     public let imageUrl: String?
     public let locationType: LocationType
-    public let floor: String
+    public let floor: String?
     public let locationDetail: String?
     public let quantity: Int?
-    public let currentOperatingHours: CurrentOperatingHours
+    public let operatingHours: [OperatingHour]
     public let externalUrl: String?
     public let building: Building
     
@@ -69,10 +69,10 @@ public struct CampusPlaceItem: Codable, Identifiable, Hashable {
         categoryKorName: String,
         imageUrl: String?,
         locationType: LocationType,
-        floor: String,
+        floor: String?,
         locationDetail: String?,
         quantity: Int?,
-        currentOperatingHours: CurrentOperatingHours,
+        operatingHours: [OperatingHour],
         externalUrl: String?,
         building: Building
     ) {
@@ -85,7 +85,7 @@ public struct CampusPlaceItem: Codable, Identifiable, Hashable {
         self.floor = floor
         self.locationDetail = locationDetail
         self.quantity = quantity
-        self.currentOperatingHours = currentOperatingHours
+        self.operatingHours = operatingHours
         self.externalUrl = externalUrl
         self.building = building
     }

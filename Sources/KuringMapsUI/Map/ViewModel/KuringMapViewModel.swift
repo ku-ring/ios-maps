@@ -334,13 +334,20 @@ public class KuringMapViewModel: ObservableObject {
         return matched + others
     }
     
-    public func commitSearch(_ query: String) {
+    public func addRecentSearch(_ query: String) {
         guard !query.isEmpty else {
             return
         }
         if !recentSearches.contains(where: { $0.query == query }) {
             recentSearches.insert(RecentSearch(query: query, iconName: "building"), at: 0)
         }
+    }
+    
+    public func commitSearch(_ query: String) {
+        guard !query.isEmpty else {
+            return
+        }
+        addRecentSearch(query)
         Task {
             await search(by: query)
         }

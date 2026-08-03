@@ -87,12 +87,9 @@ extension KuringMapBottomSheet {
         HStack(alignment: .top, spacing: 12) {
             VStack(alignment: .leading, spacing: 8) {
                 addressRow
-                hoursSubRow(label: "기간", value: detail.currentOperatingHours.period, emphasized: false)
-                hoursSubRow(label: "요일", value: detail.currentOperatingHours.dayGroup, emphasized: false)
-                hoursSubRow(label: "상태", value: detail.currentOperatingHours.status, emphasized: true)
-                if let opensAt = detail.currentOperatingHours.opensAt, let closesAt = detail.currentOperatingHours.closesAt {
-                    hoursSubRow(label: "운영시간", value: "\(opensAt) ~ \(closesAt)", emphasized: false)
-                }
+                hoursSubRow(label: "운영시간", value: detail.operatingHours.formattedCurrentHours, emphasized: true)
+                hoursSubRow(label: "학기 중", value: detail.operatingHours.formattedPeriodHours(for: .semester), emphasized: false)
+                hoursSubRow(label: "방학 중", value: detail.operatingHours.formattedPeriodHours(for: .vacation), emphasized: false)
             }
 
             Spacer()
@@ -192,7 +189,8 @@ extension KuringMapBottomSheet {
                     .foregroundStyle(Color.Kuring.caption1)
             }
 
-            let locationStr = "\(campusPlace.floor)층 \(campusPlace.locationDetail ?? "")"
+            let floorStr = campusPlace.floor.map { "\($0)층 " } ?? ""
+            let locationStr = "\(floorStr)\(campusPlace.locationDetail ?? "")"
             hoursSubRow(label: "위치", value: locationStr, emphasized: false)
             
             if let quantity = campusPlace.quantity {
@@ -200,10 +198,9 @@ extension KuringMapBottomSheet {
             }
             
             VStack(spacing: 4) {
-                hoursSubRow(label: "상태", value: campusPlace.currentOperatingHours.status, emphasized: true)
-                if let opens = campusPlace.currentOperatingHours.opensAt, let closes = campusPlace.currentOperatingHours.closesAt {
-                    hoursSubRow(label: "운영시간", value: "\(opens) ~ \(closes)", emphasized: false)
-                }
+                hoursSubRow(label: "운영시간", value: campusPlace.operatingHours.formattedCurrentHours, emphasized: true)
+                hoursSubRow(label: "학기 중", value: campusPlace.operatingHours.formattedPeriodHours(for: .semester), emphasized: false)
+                hoursSubRow(label: "방학 중", value: campusPlace.operatingHours.formattedPeriodHours(for: .vacation), emphasized: false)
             }
         }
     }

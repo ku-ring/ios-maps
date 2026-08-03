@@ -243,7 +243,7 @@ struct KuringMapSearchView: View {
         .padding(.vertical, 12)
         .contentShape(Rectangle())
         .onTapGesture {
-            viewModel.commitSearch(building.name)
+            viewModel.addRecentSearch(building.name)
             onSelect(building)
         }
     }
