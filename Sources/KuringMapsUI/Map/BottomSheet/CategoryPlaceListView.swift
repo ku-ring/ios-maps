@@ -11,6 +11,7 @@ import KuringMapsLink
 struct CategoryPlaceListView: View {
     let places: [CampusPlaceItem]
     @ObservedObject var viewModel: KuringMapViewModel
+    @Environment(\.mapAppearance) var appearance
 
     var body: some View {
         Group {
@@ -22,7 +23,7 @@ struct CategoryPlaceListView: View {
                         .frame(width: 150, height: 150)
                     Text("관련 건물이 없습니다.")
                         .font(.system(size: 14))
-                        .foregroundStyle(Color.Kuring.caption1)
+                        .foregroundStyle(appearance.caption1)
                         .padding(.top, 12)
                     Spacer()
                 }
@@ -41,7 +42,7 @@ struct CategoryPlaceListView: View {
                 }
             }
         }
-        .background(Color.Kuring.bg)
+        .background(appearance.bg)
     }
 
     private func placeRow(_ place: CampusPlaceItem) -> some View {
@@ -63,13 +64,13 @@ struct CategoryPlaceListView: View {
                     .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
                 } else {
                     RoundedRectangle(cornerRadius: 8, style: .continuous)
-                        .fill(Color.Kuring.primary.opacity(0.1))
+                        .fill(appearance.primary.opacity(0.1))
                         .frame(width: 50, height: 50)
                         .overlay(
                             Image(place.category, bundle: .module)
                                 .renderingMode(.template)
                                 .font(.system(size: 16))
-                                .foregroundStyle(Color.Kuring.primary)
+                                .foregroundStyle(appearance.primary)
                         )
                 }
 
@@ -77,18 +78,18 @@ struct CategoryPlaceListView: View {
                     HStack(alignment: .firstTextBaseline, spacing: 6) {
                         Text(place.name)
                             .font(.system(size: 16, weight: .medium))
-                            .foregroundStyle(Color.Kuring.body)
+                            .foregroundStyle(appearance.body)
                         
                         Text(place.categoryKorName)
                             .font(.system(size: 14))
-                            .foregroundStyle(Color.Kuring.caption1)
+                            .foregroundStyle(appearance.caption1)
                     }
 
                     HStack(spacing: 8) {
                         let locationStr = "\(place.locationDetail ?? "")"
                         Text(locationStr)
                             .font(.system(size: 14))
-                            .foregroundStyle(Color.Kuring.body)
+                            .foregroundStyle(appearance.body)
                         
                         Divider()
                             .padding(.vertical, 5)
@@ -96,7 +97,7 @@ struct CategoryPlaceListView: View {
                         let hoursStr = place.operatingHours.formattedCurrentHours
                         Text(hoursStr)
                             .font(.system(size: 14))
-                            .foregroundStyle(Color.Kuring.body)
+                            .foregroundStyle(appearance.body)
                     }
                 }
 
@@ -104,7 +105,7 @@ struct CategoryPlaceListView: View {
                 
                 Image(systemName: "chevron.right")
                     .font(.system(size: 12, weight: .semibold))
-                    .foregroundStyle(Color.Kuring.gray300)
+                    .foregroundStyle(appearance.gray300)
                     .padding(.trailing, 8)
             }
             .padding(.vertical, 10)

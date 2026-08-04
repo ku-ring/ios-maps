@@ -13,6 +13,7 @@ struct KuringMapSearchView: View {
     let onSelect: (Building) -> Void
 
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.mapAppearance) var appearance
     @FocusState private var isSearchFocused: Bool
 
     private var isSearching: Bool { !viewModel.searchText.isEmpty }
@@ -35,7 +36,7 @@ struct KuringMapSearchView: View {
 
             Spacer()
         }
-        .background(Color.Kuring.bg)
+        .background(appearance.bg)
         .navigationBarBackButtonHidden(true)
         .onAppear {
             isSearchFocused = true
@@ -51,13 +52,13 @@ struct KuringMapSearchView: View {
                 Image(systemName: "chevron.left")
                     .renderingMode(.template)
                     .font(.system(size: 18, weight: .semibold))
-                    .foregroundStyle(Color.Kuring.gray600)
+                    .foregroundStyle(appearance.gray600)
             }
 
             HStack(spacing: 8) {
                 TextField("건물명 및 위치 검색", text: $viewModel.searchText)
                     .font(.system(size: 16, weight: .medium))
-                    .foregroundStyle(Color.Kuring.caption1)
+                    .foregroundStyle(appearance.caption1)
                     .focused($isSearchFocused)
                     .submitLabel(.search)
                     .onSubmit {
@@ -71,13 +72,13 @@ struct KuringMapSearchView: View {
                     } label: {
                         Image(systemName: "xmark.circle.fill")
                             .font(.system(size: 16))
-                            .foregroundStyle(Color.Kuring.gray400)
+                            .foregroundStyle(appearance.gray400)
                             .frame(width: 20, height: 20)
                     }
                 } else {
                     Image("search2", bundle: .module)
                         .renderingMode(.template)
-                        .foregroundStyle(Color.Kuring.gray400)
+                        .foregroundStyle(appearance.gray400)
                         .frame(width: 20, height: 20)
                 }
             }
@@ -86,14 +87,14 @@ struct KuringMapSearchView: View {
             .padding(.vertical, 10)
             .background(
                 RoundedRectangle(cornerRadius: 12, style: .continuous)
-                    .fill(Color.Kuring.gray100)
+                    .fill(appearance.gray100)
             )
         }
         .padding(.horizontal, 20)
         .padding(.top, 8)
         .padding(.bottom, 12)
         .background(
-            Color.Kuring.bg
+            appearance.bg
                 .ignoresSafeArea(edges: .top)
         )
     }
@@ -109,7 +110,7 @@ struct KuringMapSearchView: View {
             VStack {
                 Text("최근 검색어가 아직 없습니다.")
                     .font(.system(size: 14))
-                    .foregroundStyle(Color.Kuring.caption1)
+                    .foregroundStyle(appearance.caption1)
             }
             .frame(height: 50, alignment: .top)
             .padding(.top, 12)
@@ -132,7 +133,7 @@ struct KuringMapSearchView: View {
                 Text("다른 검색어를 입력해주세요.")
             }
             .font(.system(size: 14))
-            .foregroundStyle(Color.Kuring.caption1)
+            .foregroundStyle(appearance.caption1)
             .multilineTextAlignment(.center)
             .frame(height: 50, alignment: .top)
             .padding(.top, 12)
@@ -148,7 +149,7 @@ struct KuringMapSearchView: View {
             HStack {
                 Text("최근 검색어")
                     .font(.system(size: 16, weight: .semibold))
-                    .foregroundStyle(Color.Kuring.body)
+                    .foregroundStyle(appearance.body)
                     .padding(.leading, 4)
 
                 Spacer()
@@ -158,7 +159,7 @@ struct KuringMapSearchView: View {
                 } label: {
                     Text("전체삭제")
                         .font(.system(size: 16))
-                        .foregroundStyle(Color.Kuring.caption1)
+                        .foregroundStyle(appearance.caption1)
                 }
             }
             .padding(.horizontal, 24)
@@ -177,17 +178,17 @@ struct KuringMapSearchView: View {
                 .renderingMode(.template)
                 .resizable()
                 .frame(width: 20, height: 20)
-                .foregroundStyle(Color.Kuring.gray300)
+                .foregroundStyle(appearance.gray300)
                 .padding(4)
                 .background(
                     Circle()
-                        .fill(Color.Kuring.gray100)
+                        .fill(appearance.gray100)
                 )
                 .padding(.leading, 4)
 
             Text(item.query)
                 .font(.system(size: 15, weight: .medium))
-                .foregroundStyle(Color.Kuring.body)
+                .foregroundStyle(appearance.body)
 
             Spacer()
 
@@ -195,7 +196,7 @@ struct KuringMapSearchView: View {
                 viewModel.recentSearches.removeAll { $0.id == item.id }
             } label: {
                 Image(systemName: "xmark")
-                    .foregroundStyle(Color.Kuring.gray300)
+                    .foregroundStyle(appearance.gray300)
             }
         }
         .padding(.horizontal, 24)
@@ -226,11 +227,11 @@ struct KuringMapSearchView: View {
                 .renderingMode(.template)
                 .resizable()
                 .frame(width: 20, height: 20)
-                .foregroundStyle(Color.Kuring.gray300)
+                .foregroundStyle(appearance.gray300)
                 .padding(4)
                 .background(
                     Circle()
-                        .fill(Color.Kuring.gray100)
+                        .fill(appearance.gray100)
                 )
                 .padding(.leading, 8)
 
@@ -252,16 +253,16 @@ struct KuringMapSearchView: View {
     private func highlightedText(_ text: String, matching query: String) -> Text {
         guard !query.isEmpty,
               let range = text.range(of: query, options: .caseInsensitive) else {
-            return Text(text).foregroundColor(Color.Kuring.body)
+            return Text(text).foregroundColor(appearance.body)
         }
 
         let before = String(text[text.startIndex..<range.lowerBound])
         let match = String(text[range])
         let after = String(text[range.upperBound...])
 
-        return Text(before).foregroundColor(Color.Kuring.body)
-            + Text(match).foregroundColor(Color.Kuring.primary)
-            + Text(after).foregroundColor(Color.Kuring.body)
+        return Text(before).foregroundColor(appearance.body)
+            + Text(match).foregroundColor(appearance.primary)
+            + Text(after).foregroundColor(appearance.body)
     }
 }
 

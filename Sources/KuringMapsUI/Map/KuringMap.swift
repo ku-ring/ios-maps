@@ -129,7 +129,7 @@ extension KuringMap {
                     .padding(.top, 8)
                     .padding(.bottom, 12)
                     .background(
-                        Color.Kuring.bg
+                        appearance.bg
                             .ignoresSafeArea(edges: .top)
                     )
             }
@@ -145,19 +145,19 @@ extension KuringMap {
         HStack(spacing: 8) {
             TextField("건물명 및 위치 검색", text: .constant(""))
                 .font(.system(size: 16, weight: .medium))
-                .foregroundStyle(Color.Kuring.caption1)
+                .foregroundStyle(appearance.caption1)
                 .disabled(true)
             
             Image("search2", bundle: .module)
                 .renderingMode(.template)
-                .foregroundStyle(Color.Kuring.gray400)
+                .foregroundStyle(appearance.gray400)
                 .frame(width: 20, height: 20)
         }
         .padding(.horizontal, 16)
         .padding(.vertical, 10)
         .background(
             RoundedRectangle(cornerRadius: 12, style: .continuous)
-                .fill(Color.Kuring.bg)
+                .fill(appearance.bg)
         )
         .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
         .shadow(radius: 4)
@@ -184,21 +184,21 @@ extension KuringMap {
             HStack(spacing: 8) {
                 TextField("", text: .constant(keyword))
                     .font(.system(size: 16, weight: .medium))
-                    .foregroundStyle(Color.Kuring.title)
+                    .foregroundStyle(appearance.title)
                     .disabled(true)
                 
                 Spacer()
                 
                 Image(systemName: "xmark.circle.fill")
                     .font(.system(size: 16))
-                    .foregroundStyle(Color.Kuring.gray400)
+                    .foregroundStyle(appearance.gray400)
                     .frame(width: 20, height: 20)
             }
             .padding(.horizontal, 16)
             .padding(.vertical, 10)
             .background(
                 RoundedRectangle(cornerRadius: 12, style: .continuous)
-                    .fill(Color.Kuring.gray100)
+                    .fill(appearance.gray100)
             )
             .onTapGesture {
                 viewModel.tapClearOnSearchBar()
@@ -236,14 +236,14 @@ extension KuringMap {
             Text(category.korName)
                 .font(.system(size: 14, weight: .medium))
         }
-        .foregroundStyle(isSelected ? Color.Kuring.primary : Color.Kuring.body)
+        .foregroundStyle(isSelected ? appearance.primary : appearance.body)
         .padding(.horizontal, 14)
         .padding(.vertical, 9)
         .background(
             Capsule()
-                .fill(Color.Kuring.bg)
+                .fill(appearance.bg)
                 .stroke(
-                    isSelected ? Color.Kuring.primary : Color.Kuring.bg,
+                    isSelected ? appearance.primary : appearance.bg,
                     lineWidth: isSelected ? 1 : 0
                 )
                 .shadow(color: .black.opacity(0.08), radius: 4)
@@ -263,19 +263,19 @@ extension KuringMap {
                     HStack(spacing: 6)  {
                         Image("icon.library.book", bundle: .module)
                             .renderingMode(.template)
-                            .foregroundStyle(Color.Kuring.primary)
+                            .foregroundStyle(appearance.primary)
                         
                         Text("열람실 좌석 현황")
                             .font(.system(size: 12, weight: .semibold))
-                            .foregroundStyle(Color.Kuring.primary)
+                            .foregroundStyle(appearance.primary)
                     }
                 }
                 .padding(12)
-                .background(Color.Kuring.bg)
+                .background(appearance.bg)
                 .clipShape(.capsule)
                 .overlay(
                     Capsule()
-                        .stroke(Color.Kuring.primary, lineWidth: 1)
+                        .stroke(appearance.primary, lineWidth: 1)
                 )
                 
                 Spacer()
@@ -302,7 +302,7 @@ extension KuringMap {
                                 .rotationEffect(.degrees(-viewModel.mapHeading))
                         }
                         .buttonStyle(.plain)
-                        .frame(width: 48, height: 48)
+                        .frame(width: 50, height: 50)
                         .shadow(color: .black.opacity(0.2), radius: 4)
                     }
                     
@@ -316,7 +316,7 @@ extension KuringMap {
                     }
                     .buttonStyle(.plain)
                     .frame(width: 44, height: 44)
-                    .background(Circle().fill(Color.Kuring.bg))
+                    .background(Circle().fill(appearance.bg))
                     .shadow(color: .black.opacity(0.2), radius: 4)
                 }
             }

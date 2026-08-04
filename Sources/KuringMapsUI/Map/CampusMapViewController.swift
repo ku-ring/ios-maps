@@ -23,6 +23,8 @@ class CampusMapViewController: UIViewController {
     private var lastIsSearchActive: Bool = false
     private var cancellables = Set<AnyCancellable>()
     
+    @Environment(\.mapAppearance) var appearance
+    
     init(viewModel: KuringMapViewModel) {
         self.viewModel = viewModel
         super.init(nibName: nil, bundle: nil)
@@ -244,7 +246,7 @@ extension CampusMapViewController: MKMapViewDelegate {
         ) as? MKMarkerAnnotationView
         ?? MKMarkerAnnotationView(annotation: annotation, reuseIdentifier: AnnotationIdentifier.reuseIdentifier)
 
-        view.markerTintColor = UIColor(Color.Kuring.primary)
+        view.markerTintColor = UIColor(appearance.primary)
         if let annotation = annotation as? KuringAnnotation {
             view.glyphImage = UIImage(
                 named: annotation.iconName,

@@ -12,6 +12,7 @@ struct KuringMapBottomSheet: View {
     let detail: BuildingDetailResponse
     var onDismiss: (() -> Void)? = nil
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.mapAppearance) var appearance
 
     var body: some View {
         ScrollView {
@@ -26,7 +27,7 @@ struct KuringMapBottomSheet: View {
             .padding(.top, 32)
             .padding(.bottom, 32)
         }
-        .background(Color.Kuring.bg)
+        .background(appearance.bg)
     }
 }
 
@@ -37,7 +38,7 @@ extension KuringMapBottomSheet {
         HStack {
             Text(detail.name)
                 .font(.system(size: 20, weight: .bold))
-                .foregroundStyle(Color.Kuring.title)
+                .foregroundStyle(appearance.title)
 
             Spacer()
 
@@ -50,9 +51,9 @@ extension KuringMapBottomSheet {
             } label: {
                 Image(systemName: "xmark")
                     .font(.system(size: 8, weight: .bold))
-                    .foregroundStyle(Color.Kuring.gray400)
+                    .foregroundStyle(appearance.gray400)
                     .padding(6)
-                    .background(Circle().fill(Color.Kuring.caption2))
+                    .background(Circle().fill(appearance.caption2))
             }
         }
     }
@@ -64,16 +65,16 @@ extension KuringMapBottomSheet {
         return HStack(spacing: 8) {
             Text("부속건물")
                 .font(.system(size: 14, weight: .medium))
-                .foregroundStyle(Color.Kuring.caption1)
+                .foregroundStyle(appearance.caption1)
 
             ForEach(categoryIcons, id: \.self) { iconName in
                 Image(iconName, bundle: .module)
                     .renderingMode(.template)
-                    .foregroundStyle(Color.Kuring.caption1)
+                    .foregroundStyle(appearance.caption1)
                     .padding(2)
                     .background(
                         RoundedRectangle(cornerRadius: 4)
-                            .fill(Color.Kuring.gray100)
+                            .fill(appearance.gray100)
                     )
             }
         }
@@ -101,12 +102,12 @@ extension KuringMapBottomSheet {
                 .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
             } else {
                 RoundedRectangle(cornerRadius: 12, style: .continuous)
-                    .fill(Color.Kuring.primary.opacity(0.1))
+                    .fill(appearance.primary.opacity(0.1))
                     .frame(width: 80, height: 80)
                     .overlay(
                         Image("building", bundle: .module)
                             .renderingMode(.template)
-                            .foregroundStyle(Color.Kuring.primary)
+                            .foregroundStyle(appearance.primary)
                     )
             }
         }
@@ -118,20 +119,20 @@ extension KuringMapBottomSheet {
         HStack(spacing: 4) {
             Text("주소")
                 .font(.system(size: 14))
-                .foregroundStyle(Color.Kuring.caption1)
+                .foregroundStyle(appearance.caption1)
                 .frame(width: 76, alignment: .leading)
             
             HStack(spacing: 6) {
                 Text(detail.address)
                     .font(.system(size: 15))
-                    .foregroundStyle(Color.Kuring.body)
+                    .foregroundStyle(appearance.body)
 
                 Button {
                     UIPasteboard.general.string = detail.address
                 } label: {
                     Image("copy", bundle: .module)
                         .font(.system(size: 12))
-                        .foregroundStyle(Color.Kuring.gray300)
+                        .foregroundStyle(appearance.gray300)
                 }
             }
         }
@@ -141,12 +142,12 @@ extension KuringMapBottomSheet {
         HStack(alignment: .top, spacing: 4) {
             Text(label)
                 .font(.system(size: 14, weight: emphasized ? .semibold : .regular))
-                .foregroundStyle(emphasized ? Color.Kuring.body : Color.Kuring.caption1)
+                .foregroundStyle(emphasized ? appearance.body : appearance.caption1)
                 .frame(width: 76, alignment: .leading)
 
             Text(value)
                 .font(.system(size: 14, weight: emphasized ? .semibold : .regular))
-                .foregroundStyle(emphasized ? Color.Kuring.body : Color.Kuring.caption1)
+                .foregroundStyle(emphasized ? appearance.body : appearance.caption1)
                 .lineSpacing(2)
         }
     }
@@ -156,7 +157,7 @@ extension KuringMapBottomSheet {
         VStack(alignment: .leading, spacing: 20) {
             Text("편의시설 상세 정보")
                 .font(.system(size: 14, weight: .medium))
-                .foregroundStyle(Color.Kuring.body)
+                .foregroundStyle(appearance.body)
 
             ForEach(detail.campusPlaces) { campusPlace in
                 amenityCard(campusPlace)
@@ -172,16 +173,16 @@ extension KuringMapBottomSheet {
                 Image(iconName, bundle: .module)
                     .renderingMode(.template)
                     .font(.system(size: 12))
-                    .foregroundStyle(Color.Kuring.primary)
+                    .foregroundStyle(appearance.primary)
                     .padding(4)
                     .background(
                         RoundedRectangle(cornerRadius: 4)
-                            .fill(Color.Kuring.gray100)
+                            .fill(appearance.gray100)
                     )
 
                 Text(campusPlace.name)
                     .font(.system(size: 14, weight: .medium))
-                    .foregroundStyle(Color.Kuring.caption1)
+                    .foregroundStyle(appearance.caption1)
             }
 
             let floorStr = campusPlace.floor.map { "\($0)층 " } ?? ""

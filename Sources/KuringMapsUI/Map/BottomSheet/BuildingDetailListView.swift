@@ -11,6 +11,7 @@ import KuringMapsLink
 struct BuildingDetailListView: View {
     let buildings: [BuildingDetailResponse]
     @ObservedObject var viewModel: KuringMapViewModel
+    @Environment(\.mapAppearance) var appearance
 
     var body: some View {
         Group {
@@ -22,7 +23,7 @@ struct BuildingDetailListView: View {
                         .frame(width: 150, height: 150)
                     Text("관련 건물이 없습니다.")
                         .font(.system(size: 14))
-                        .foregroundStyle(Color.Kuring.caption1)
+                        .foregroundStyle(appearance.caption1)
                         .padding(.top, 12)
                     Spacer()
                 }
@@ -41,7 +42,7 @@ struct BuildingDetailListView: View {
                 }
             }
         }
-        .background(Color.Kuring.bg)
+        .background(appearance.bg)
     }
 
     private func buildingRow(_ building: BuildingDetailResponse) -> some View {
@@ -61,13 +62,13 @@ struct BuildingDetailListView: View {
                     .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
                 } else {
                     RoundedRectangle(cornerRadius: 8, style: .continuous)
-                        .fill(Color.Kuring.gray100)
+                        .fill(appearance.gray100)
                         .frame(width: 50, height: 50)
                         .overlay(
                             Image("building", bundle: .module)
                                 .renderingMode(.template)
                                 .font(.system(size: 16))
-                                .foregroundStyle(Color.Kuring.gray300)
+                                .foregroundStyle(appearance.gray300)
                         )
                 }
 
@@ -75,17 +76,17 @@ struct BuildingDetailListView: View {
                     HStack(alignment: .firstTextBaseline, spacing: 6) {
                         Text(building.name)
                             .font(.system(size: 16, weight: .medium))
-                            .foregroundStyle(Color.Kuring.body)
+                            .foregroundStyle(appearance.body)
                         
                         Text("부속건물")
                             .font(.system(size: 14))
-                            .foregroundStyle(Color.Kuring.caption1)
+                            .foregroundStyle(appearance.caption1)
                     }
 
                     HStack(spacing: 8) {
                         Text(building.address)
                             .font(.system(size: 14))
-                            .foregroundStyle(Color.Kuring.body)
+                            .foregroundStyle(appearance.body)
                             .lineLimit(1)
                         
                         Divider()
@@ -94,7 +95,7 @@ struct BuildingDetailListView: View {
                         let hoursStr = building.operatingHours.formattedCurrentHours
                         Text(hoursStr)
                             .font(.system(size: 14))
-                            .foregroundStyle(Color.Kuring.body)
+                            .foregroundStyle(appearance.body)
                     }
                 }
 
@@ -102,7 +103,7 @@ struct BuildingDetailListView: View {
                 
                 Image(systemName: "chevron.right")
                     .font(.system(size: 12, weight: .semibold))
-                    .foregroundStyle(Color.Kuring.gray300)
+                    .foregroundStyle(appearance.gray300)
                     .padding(.trailing, 8)
             }
             .padding(.vertical, 10)
