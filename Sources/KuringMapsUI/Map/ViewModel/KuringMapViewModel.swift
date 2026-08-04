@@ -69,6 +69,11 @@ public class KuringMapViewModel: ObservableObject {
     @Published public var recentSearches: [RecentSearch] = []
     private var activeSearchBuildingDetails: [BuildingDetailResponse] = []
     
+    @Published public var isMapRotated: Bool = false
+    @Published public var mapHeading: Double = 0.0
+    public let locationActionSubject = PassthroughSubject<Void, Never>()
+    public let compassActionSubject = PassthroughSubject<Void, Never>()
+    
     private var cancellables = Set<AnyCancellable>()
     
     public init() {

@@ -21,6 +21,7 @@ class CampusMapViewController: UIViewController {
     private var lastCampusPlacesCount: Int = 0
     private var lastSearchResultsCount: Int = 0
     private var lastIsSearchActive: Bool = false
+    private var cancellables = Set<AnyCancellable>()
     
     init(viewModel: KuringMapViewModel) {
         self.viewModel = viewModel
@@ -35,6 +36,22 @@ class CampusMapViewController: UIViewController {
         super.viewDidLoad()
         setupMapView()
         setupInitialCamera()
+        setupSubscriptions()
+    }
+    
+    private func setupSubscriptions() {
+        viewModel.compassActionSubject
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] in
+                self?.resetMapHeading()
+            }
+            .store(in: &cancellables)
+    }
+    
+    private func resetMapHeading() {
+        let camera = mapView.camera
+        camera.heading = 0
+        mapView.setCamera(camera, animated: true)
     }
     
     func setupMapView() {
@@ -64,11 +81,11 @@ class CampusMapViewController: UIViewController {
         /// 초기 좌표는 일감호의 좌표
         let mapCamera = MKMapCamera()
         mapCamera.centerCoordinate = CLLocationCoordinate2D(
-            latitude: 37.538744,
-            longitude: 127.076451
+            latitude: 37.540893,
+            longitude: 127.076572
         )
         mapCamera.heading = 20
-        mapCamera.altitude = 5000
+        mapCamera.altitude = 4000
         mapView.setCamera(mapCamera, animated: false)
     }
     
@@ -240,5 +257,16 @@ extension CampusMapViewController: MKMapViewDelegate {
         view.canShowCallout = false
 
         return view
+    }
+    
+    func mapViewDidChangeVisibleRegion(_ mapView: MKMapView) {
+        let heading = mapView.camera.heading
+        let isRotated = abs(heading) > 1.0
+        if viewModel.isMapRotated != isRotated {
+            viewModel.isMapRotated = isRotated
+        }
+        if viewModel.mapHeading != heading {
+            viewModel.mapHeading = heading
+        }
     }
 }

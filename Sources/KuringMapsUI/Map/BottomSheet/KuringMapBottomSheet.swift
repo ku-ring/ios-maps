@@ -59,15 +59,12 @@ extension KuringMapBottomSheet {
 
     /// 카테고리 영역 (건물 내 존재하는 시설 카테고리 목록 표시)
     private var categoryRow: some View {
-        let categoriesList = Array(Set(detail.campusPlaces.map { $0.categoryKorName })).sorted()
         let categoryIcons = Array(Set(detail.campusPlaces.map { $0.category })).sorted()
         
         return HStack(spacing: 8) {
-            ForEach(categoriesList, id: \.self) { categoryName in
-                Text(categoryName)
-                    .font(.system(size: 14, weight: .medium))
-                    .foregroundStyle(Color.Kuring.caption1)
-            }
+            Text("부속건물")
+                .font(.system(size: 14, weight: .medium))
+                .foregroundStyle(Color.Kuring.caption1)
 
             ForEach(categoryIcons, id: \.self) { iconName in
                 Image(iconName, bundle: .module)
@@ -92,8 +89,6 @@ extension KuringMapBottomSheet {
                 hoursSubRow(label: "방학 중", value: detail.operatingHours.formattedPeriodHours(for: .vacation), emphasized: false)
             }
 
-            Spacer()
-
             if let imageUrlString = detail.imageUrl, let url = URL(string: imageUrlString) {
                 AsyncImage(url: url) { image in
                     image
@@ -115,16 +110,16 @@ extension KuringMapBottomSheet {
                     )
             }
         }
+        .frame(maxWidth: .infinity)
     }
 
     /// 정보 영역 - 주소
     private var addressRow: some View {
-        HStack {
+        HStack(spacing: 4) {
             Text("주소")
                 .font(.system(size: 14))
                 .foregroundStyle(Color.Kuring.caption1)
-
-            Spacer()
+                .frame(width: 76, alignment: .leading)
             
             HStack(spacing: 6) {
                 Text(detail.address)
@@ -143,16 +138,16 @@ extension KuringMapBottomSheet {
     }
 
     private func hoursSubRow(label: String, value: String, emphasized: Bool) -> some View {
-        HStack {
+        HStack(alignment: .top, spacing: 4) {
             Text(label)
                 .font(.system(size: 14, weight: emphasized ? .semibold : .regular))
                 .foregroundStyle(emphasized ? Color.Kuring.body : Color.Kuring.caption1)
-
-            Spacer()
+                .frame(width: 76, alignment: .leading)
 
             Text(value)
                 .font(.system(size: 14, weight: emphasized ? .semibold : .regular))
                 .foregroundStyle(emphasized ? Color.Kuring.body : Color.Kuring.caption1)
+                .lineSpacing(2)
         }
     }
 
@@ -197,11 +192,9 @@ extension KuringMapBottomSheet {
                 hoursSubRow(label: "수량", value: "\(quantity)개", emphasized: false)
             }
             
-            VStack(spacing: 4) {
-                hoursSubRow(label: "운영시간", value: campusPlace.operatingHours.formattedCurrentHours, emphasized: true)
-                hoursSubRow(label: "학기 중", value: campusPlace.operatingHours.formattedPeriodHours(for: .semester), emphasized: false)
-                hoursSubRow(label: "방학 중", value: campusPlace.operatingHours.formattedPeriodHours(for: .vacation), emphasized: false)
-            }
+            hoursSubRow(label: "운영시간", value: campusPlace.operatingHours.formattedCurrentHours, emphasized: true)
+            hoursSubRow(label: "학기 중", value: campusPlace.operatingHours.formattedPeriodHours(for: .semester, separator: " / "), emphasized: false)
+            hoursSubRow(label: "방학 중", value: campusPlace.operatingHours.formattedPeriodHours(for: .vacation, separator: " / "), emphasized: false)
         }
     }
 }

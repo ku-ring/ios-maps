@@ -121,7 +121,7 @@ extension Array where Element == OperatingHour {
         return "운영시간 정보 없음"
     }
     
-    public func formattedPeriodHours(for period: OperatingPeriod) -> String {
+    public func formattedPeriodHours(for period: OperatingPeriod, separator: String = "\n") -> String {
         let periodHours = self.filter { $0.period == period }
         if periodHours.isEmpty {
             return "운영시간 정보 없음"
@@ -139,7 +139,7 @@ extension Array where Element == OperatingHour {
             parts.append("\(dayGroupKor) \(hour.formattedString)")
         }
         
-        return parts.joined(separator: " / ")
+        return parts.joined(separator: separator)
     }
 }
 

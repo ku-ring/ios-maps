@@ -38,6 +38,7 @@ public struct KuringMap: View {
                 topSearchArea
                 
                 libraryCapsule
+                mapActionButtons
             }
             .navigationTitle("")
             .toolbarBackground(.hidden, for: .navigationBar)
@@ -256,26 +257,72 @@ extension KuringMap {
         VStack {
             Spacer()
             HStack {
-                Spacer()
                 Button {
                     path.append(.libraryRoom)
                 } label: {
                     HStack(spacing: 6)  {
                         Image("icon.library.book", bundle: .module)
+                            .renderingMode(.template)
+                            .foregroundStyle(Color.Kuring.primary)
                         
                         Text("열람실 좌석 현황")
-                            .font(.system(size: 12))
+                            .font(.system(size: 12, weight: .semibold))
                             .foregroundStyle(Color.Kuring.primary)
                     }
                 }
                 .padding(12)
                 .background(Color.Kuring.bg)
                 .clipShape(.capsule)
+                .overlay(
+                    Capsule()
+                        .stroke(Color.Kuring.primary, lineWidth: 1)
+                )
+                
+                Spacer()
+            }
+        }
+        .padding(.leading, 20)
+        .padding(.bottom, 24)
+        .shadow(color: .black.opacity(0.08), radius: 4)
+    }
+
+    private var mapActionButtons: some View {
+        VStack {
+            Spacer()
+            HStack {
+                Spacer()
+                VStack(spacing: 10) {
+                    if viewModel.isMapRotated {
+                        Button {
+                            viewModel.compassActionSubject.send()
+                        } label: {
+                            Image("compass", bundle: .module)
+                                .resizable()
+                                .aspectRatio(contentMode: .fit)
+                                .rotationEffect(.degrees(-viewModel.mapHeading))
+                        }
+                        .buttonStyle(.plain)
+                        .frame(width: 48, height: 48)
+                        .shadow(color: .black.opacity(0.2), radius: 4)
+                    }
+                    
+                    Button {
+                        viewModel.locationActionSubject.send()
+                    } label: {
+                        Image("crosshair", bundle: .module)
+                            .resizable()
+                            .aspectRatio(contentMode: .fit)
+                            .frame(width: 26, height: 26)
+                    }
+                    .buttonStyle(.plain)
+                    .frame(width: 44, height: 44)
+                    .background(Circle().fill(Color.Kuring.bg))
+                    .shadow(color: .black.opacity(0.2), radius: 4)
+                }
             }
         }
         .padding(.trailing, 20)
         .padding(.bottom, 24)
-        .shadow(color: .black.opacity(0.08), radius: 4)
     }
 }
 
