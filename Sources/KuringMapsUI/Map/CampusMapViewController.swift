@@ -23,10 +23,11 @@ class CampusMapViewController: UIViewController {
     private var lastIsSearchActive: Bool = false
     private var cancellables = Set<AnyCancellable>()
     
-    @Environment(\.mapAppearance) var appearance
+    var appearance: Appearance
     
-    init(viewModel: KuringMapViewModel) {
+    init(viewModel: KuringMapViewModel, appearance: Appearance) {
         self.viewModel = viewModel
+        self.appearance = appearance
         super.init(nibName: nil, bundle: nil)
     }
     
