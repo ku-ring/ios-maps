@@ -54,6 +54,7 @@ public struct KuringMap: View {
                             await viewModel.selectSearchResult(building)
                         }
                     }
+                    .environment(\.mapAppearance, appearance)
                 }
             }
         }
@@ -66,16 +67,19 @@ public struct KuringMap: View {
             switch state {
             case .list(let places):
                 CategoryPlaceListView(places: places, viewModel: viewModel)
+                    .environment(\.mapAppearance, appearance)
                     .presentationDetents([.medium, .large])
                     .presentationDragIndicator(.visible)
             case .buildingList(let buildings):
                 BuildingDetailListView(buildings: buildings, viewModel: viewModel)
+                    .environment(\.mapAppearance, appearance)
                     .presentationDetents([.medium, .large])
                     .presentationDragIndicator(.visible)
             case .detail(let detail, let parentList):
                 KuringMapBottomSheet(detail: detail) {
                     viewModel.dismissDetailView(parentList: parentList)
                 }
+                .environment(\.mapAppearance, appearance)
                 .presentationDetents([.medium, .large])
                 .presentationDragIndicator(.visible)
             }
