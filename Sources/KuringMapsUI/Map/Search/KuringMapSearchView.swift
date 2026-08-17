@@ -23,7 +23,7 @@ struct KuringMapSearchView: View {
             searchBar
 
             if isSearching {
-                if viewModel.searchResults.isEmpty {
+                if viewModel.searchResults.isEmpty && viewModel.searchPlaceResults.isEmpty {
                     noResultsState
                 } else {
                     resultsList
@@ -69,6 +69,7 @@ struct KuringMapSearchView: View {
                     Button {
                         viewModel.searchText = ""
                         viewModel.searchResults = []
+                        viewModel.searchPlaceResults = []
                     } label: {
                         Image(systemName: "xmark.circle.fill")
                             .font(.system(size: 16))
@@ -210,12 +211,35 @@ struct KuringMapSearchView: View {
 
     private var resultsList: some View {
         ScrollView {
-            LazyVStack(spacing: 0) {
-                ForEach(viewModel.searchResults) { building in
-                    resultRow(building)
+            LazyVStack(alignment: .leading, spacing: 0) {
+                if !viewModel.searchResults.isEmpty {
+                    if !viewModel.searchPlaceResults.isEmpty {
+                        sectionHeader("건물")
+                    }
+                    ForEach(viewModel.searchResults) { building in
+                        resultRow(building)
+                    }
+                }
+
+                if !viewModel.searchPlaceResults.isEmpty {
+                    if !viewModel.searchResults.isEmpty {
+                        sectionHeader("시설")
+                    }
+                    ForEach(viewModel.searchPlaceResults) { place in
+                        placeResultRow(place)
+                    }
                 }
             }
         }
+    }
+
+    private func sectionHeader(_ title: String) -> some View {
+        Text(title)
+            .font(.system(size: 14, weight: .semibold))
+            .foregroundStyle(appearance.caption1)
+            .padding(.horizontal, 20)
+            .padding(.top, 12)
+            .padding(.bottom, 4)
     }
 
     private func resultRow(_ building: Building) -> some View {
@@ -246,6 +270,40 @@ struct KuringMapSearchView: View {
         .onTapGesture {
             viewModel.addRecentSearch(building.name)
             onSelect(building)
+        }
+    }
+
+    private func placeResultRow(_ place: CampusPlaceItem) -> some View {
+        HStack(spacing: 8) {
+            Image(place.category, bundle: .module)
+                .renderingMode(.template)
+                .resizable()
+                .frame(width: 20, height: 20)
+                .foregroundStyle(appearance.gray300)
+                .padding(4)
+                .background(
+                    Circle()
+                        .fill(appearance.gray100)
+                )
+                .padding(.leading, 8)
+
+            VStack(alignment: .leading, spacing: 2) {
+                highlightedText(place.name, matching: viewModel.searchText)
+                    .font(.system(size: 16, weight: .semibold))
+
+                Text(place.building.name)
+                    .font(.system(size: 13))
+                    .foregroundStyle(appearance.caption1)
+            }
+
+            Spacer()
+        }
+        .padding(.horizontal, 20)
+        .padding(.vertical, 12)
+        .contentShape(Rectangle())
+        .onTapGesture {
+            viewModel.addRecentSearch(place.name)
+            onSelect(place.building)
         }
     }
 

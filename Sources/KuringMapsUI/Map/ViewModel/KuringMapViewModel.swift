@@ -66,6 +66,7 @@ public class KuringMapViewModel: ObservableObject {
     // 검색
     @Published public var searchText: String = ""
     @Published public var searchResults: [Building] = []
+    @Published public var searchPlaceResults: [CampusPlaceItem] = []
     @Published public var recentSearches: [RecentSearch] = []
     private var activeSearchBuildingDetails: [BuildingDetailResponse] = []
     
@@ -265,13 +266,16 @@ public class KuringMapViewModel: ObservableObject {
             let detail = try await KuringMapsLink.fetchBuildingDetail(id: building.id)
             self.selectedBuildingDetail = detail
             
+            var siblingBuildingIds = Set(searchResults.map { $0.id })
+            siblingBuildingIds.formUnion(searchPlaceResults.map { $0.building.id })
+
             let detailResponses = try await withThrowingTaskGroup(of: BuildingDetailResponse.self) { group in
-                for searchResult in searchResults {
+                for id in siblingBuildingIds {
                     group.addTask {
-                        try await KuringMapsLink.fetchBuildingDetail(id: searchResult.id)
+                        try await KuringMapsLink.fetchBuildingDetail(id: id)
                     }
                 }
-                
+
                 var results: [BuildingDetailResponse] = []
                 for try await res in group {
                     results.append(res)
@@ -293,19 +297,21 @@ public class KuringMapViewModel: ObservableObject {
         self.selectedCategoryNames.removeAll()
         self.campusPlaces.removeAll()
         self.searchResults.removeAll()
+        self.searchPlaceResults.removeAll()
         self.activeSearchBuildingDetails.removeAll()
         self.bottomSheetState = nil
         self.selectedBuilding = nil
         self.selectedBuildingDetail = nil
         self.searchText = ""
     }
-    
+
     /// 활성화된 검색창에서 x 를 눌렀을 때
     public func tapClearOnSearchBar() {
         self.searchBarState = .normal
         self.selectedCategoryNames.removeAll()
         self.campusPlaces.removeAll()
         self.searchResults.removeAll()
+        self.searchPlaceResults.removeAll()
         self.activeSearchBuildingDetails.removeAll()
         self.bottomSheetState = nil
         self.selectedBuilding = nil
@@ -317,16 +323,19 @@ public class KuringMapViewModel: ObservableObject {
         let trimmed = query.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmed.isEmpty else {
             self.searchResults = []
+            self.searchPlaceResults = []
             return
         }
-        
+
         do {
             let response = try await KuringMapsLink.searchBuildings(by: trimmed)
             self.searchResults = sortedSearchResults(response.buildings)
+            self.searchPlaceResults = response.campusPlaces
         } catch {
             print("Failed to search buildings: \(error)")
             let filtered = allBuildings.filter { $0.name.localizedCaseInsensitiveContains(trimmed) }
             self.searchResults = sortedSearchResults(filtered)
+            self.searchPlaceResults = []
         }
     }
     
