@@ -181,7 +181,7 @@ extension KuringMap {
                 Image(systemName: "chevron.left")
                     .renderingMode(.template)
                     .font(.system(size: 18, weight: .semibold))
-                    .foregroundStyle(.black)
+                    .foregroundStyle(appearance.gray600)
             }
             
             // 검색 키워드 표시창
