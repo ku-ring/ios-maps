@@ -88,10 +88,12 @@ struct CategoryPlaceListView: View {
                     }
 
                     HStack(spacing: 8) {
-                        let locationStr = "\(place.locationDetail ?? "")"
+                        let locationStr = "\(place.locationDetail ?? "위치 정보 없음")"
                         Text(locationStr)
                             .font(.system(size: 14))
                             .foregroundStyle(appearance.body)
+                            .minimumScaleFactor(0.5)
+                            .lineLimit(1)
                         
                         Divider()
                             .padding(.vertical, 5)

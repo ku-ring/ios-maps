@@ -58,7 +58,7 @@ struct KuringMapSearchView: View {
             HStack(spacing: 8) {
                 TextField("건물명 및 위치 검색", text: $viewModel.searchText)
                     .font(.system(size: 16, weight: .medium))
-                    .foregroundStyle(appearance.caption1)
+                    .foregroundStyle(appearance.title)
                     .focused($isSearchFocused)
                     .submitLabel(.search)
                     .onSubmit {

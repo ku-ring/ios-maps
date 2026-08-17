@@ -230,15 +230,19 @@ extension KuringMapBottomSheet {
                         RoundedRectangle(cornerRadius: 4)
                             .fill(appearance.gray100)
                     )
-
+                
                 Text(campusPlace.name)
                     .font(.system(size: 14, weight: .medium))
                     .foregroundStyle(appearance.caption1)
             }
-
-            let floorStr = campusPlace.floor.map { "\($0)층 " } ?? ""
+            
+            let floorStr = campusPlace.floor.map { "\($0) " } ?? ""
             let locationStr = "\(floorStr)\(campusPlace.locationDetail ?? "")"
-            hoursSubRow(label: "위치", value: locationStr, emphasized: false)
+            hoursSubRow(
+                label: "위치",
+                value: locationStr != "" ? locationStr : "위치 정보 없음",
+                emphasized: false
+            )
             
             if let quantity = campusPlace.quantity {
                 hoursSubRow(label: "수량", value: "\(quantity)개", emphasized: false)
