@@ -62,13 +62,15 @@ struct BuildingDetailListView: View {
                     .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
                 } else {
                     RoundedRectangle(cornerRadius: 8, style: .continuous)
-                        .fill(appearance.gray100)
+                        .fill(appearance.primary.opacity(0.1))
                         .frame(width: 50, height: 50)
                         .overlay(
                             Image("building", bundle: .module)
+                                .resizable()
                                 .renderingMode(.template)
-                                .font(.system(size: 16))
-                                .foregroundStyle(appearance.gray300)
+                                .scaledToFit()
+                                .frame(width: 20, height: 20)
+                                .foregroundStyle(appearance.primary)
                         )
                 }
 

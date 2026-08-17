@@ -196,7 +196,6 @@ private extension CGSize {
 }
 
 // MARK: - View modifier
-
 public struct ImagePreviewViewModifier: ViewModifier {
 
     public enum PresentationStyle {

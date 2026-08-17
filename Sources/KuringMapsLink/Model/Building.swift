@@ -114,6 +114,10 @@ public struct BuildingDetailResponse: Codable, Identifiable, Hashable {
 }
 
 extension Array where Element == OperatingHour {
+    public func isCurrent(for period: OperatingPeriod) -> Bool {
+        return self.contains(where: { $0.period == period && $0.isCurrent == true })
+    }
+    
     public var formattedCurrentHours: String {
         if let current = self.first(where: { $0.isCurrent }) {
             return current.formattedString
@@ -121,7 +125,7 @@ extension Array where Element == OperatingHour {
         return "운영시간 정보 없음"
     }
     
-    public func formattedPeriodHours(for period: OperatingPeriod, separator: String = "\n") -> String {
+    public func formattedPeriodHours(for period: OperatingPeriod) -> String {
         let periodHours = self.filter { $0.period == period }
         if periodHours.isEmpty {
             return "운영시간 정보 없음"
@@ -139,7 +143,7 @@ extension Array where Element == OperatingHour {
             parts.append("\(dayGroupKor) \(hour.formattedString)")
         }
         
-        return parts.joined(separator: separator)
+        return parts.joined(separator: "\n")
     }
 }
 

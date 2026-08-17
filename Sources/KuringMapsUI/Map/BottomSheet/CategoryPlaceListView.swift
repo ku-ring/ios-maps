@@ -68,8 +68,10 @@ struct CategoryPlaceListView: View {
                         .frame(width: 50, height: 50)
                         .overlay(
                             Image(place.category, bundle: .module)
+                                .resizable()
                                 .renderingMode(.template)
-                                .font(.system(size: 16))
+                                .scaledToFit()
+                                .frame(width: 20, height: 20)
                                 .foregroundStyle(appearance.primary)
                         )
                 }

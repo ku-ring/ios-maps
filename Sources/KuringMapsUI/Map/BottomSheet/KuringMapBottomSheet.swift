@@ -15,6 +15,8 @@ struct KuringMapBottomSheet: View {
     @Environment(\.mapAppearance) var appearance
 
     @State private var selectedImage: Image? = nil
+    @State private var isBuildingHoursExpanded: Bool = false
+    @State private var expandedPlaceIds: Set<Int64> = []
 
     var body: some View {
         ScrollView {
@@ -88,9 +90,23 @@ extension KuringMapBottomSheet {
         HStack(alignment: .top, spacing: 12) {
             VStack(alignment: .leading, spacing: 8) {
                 addressRow
-                hoursSubRow(label: "운영시간", value: detail.operatingHours.formattedCurrentHours, emphasized: true)
-                hoursSubRow(label: "학기 중", value: detail.operatingHours.formattedPeriodHours(for: .semester), emphasized: false)
-                hoursSubRow(label: "방학 중", value: detail.operatingHours.formattedPeriodHours(for: .vacation), emphasized: false)
+                
+                foldableHoursRow(
+                    label: "운영시간",
+                    value: detail.operatingHours.formattedCurrentHours,
+                    isExpanded: isBuildingHoursExpanded
+                ) {
+                    withAnimation(.easeInOut(duration: 0.2)) {
+                        isBuildingHoursExpanded.toggle()
+                    }
+                }
+                
+                if isBuildingHoursExpanded {
+                    VStack(alignment: .leading, spacing: 8) {
+                        hoursSubRow(label: "학기 중", value: detail.operatingHours.formattedPeriodHours(for: .semester), emphasized: detail.operatingHours.isCurrent(for: .semester))
+                        hoursSubRow(label: "방학 중", value: detail.operatingHours.formattedPeriodHours(for: .vacation), emphasized: detail.operatingHours.isCurrent(for: .vacation))
+                    }
+                }
             }
 
             if let imageUrlString = detail.imageUrl, let url = URL(string: imageUrlString) {
@@ -98,6 +114,9 @@ extension KuringMapBottomSheet {
                     image
                         .resizable()
                         .aspectRatio(contentMode: .fill)
+                        .onTapGesture {
+                            selectedImage = image
+                        }
                 } placeholder: {
                     ProgressView()
                 }
@@ -109,7 +128,10 @@ extension KuringMapBottomSheet {
                     .frame(width: 80, height: 80)
                     .overlay(
                         Image("building", bundle: .module)
+                            .resizable()
                             .renderingMode(.template)
+                            .scaledToFit()
+                            .frame(width: 36, height: 36)
                             .foregroundStyle(appearance.primary)
                     )
             }
@@ -155,6 +177,32 @@ extension KuringMapBottomSheet {
         }
     }
 
+    private func foldableHoursRow(label: String, value: String, isExpanded: Bool, onToggle: @escaping () -> Void) -> some View {
+        Button {
+            onToggle()
+        } label: {
+            HStack(alignment: .firstTextBaseline, spacing: 4) {
+                Text(label)
+                    .font(.system(size: 14))
+                    .foregroundStyle(appearance.caption1)
+                    .frame(width: 76, alignment: .leading)
+
+                HStack(alignment: .center, spacing: 6) {
+                    Text(value)
+                        .font(.system(size: 14))
+                        .foregroundStyle(appearance.body)
+                        .lineSpacing(2)
+
+                    Image(systemName: "chevron.down")
+                        .font(.system(size: 10, weight: .semibold))
+                        .foregroundStyle(appearance.gray300)
+                        .rotationEffect(.degrees(isExpanded ? 180 : 0))
+                }
+            }
+        }
+        .buttonStyle(.plain)
+    }
+
     /// 편의시설 (내부 시설 목록)
     private var amenitySection: some View {
         VStack(alignment: .leading, spacing: 20) {
@@ -196,9 +244,27 @@ extension KuringMapBottomSheet {
                 hoursSubRow(label: "수량", value: "\(quantity)개", emphasized: false)
             }
             
-            hoursSubRow(label: "운영시간", value: campusPlace.operatingHours.formattedCurrentHours, emphasized: true)
-            hoursSubRow(label: "학기 중", value: campusPlace.operatingHours.formattedPeriodHours(for: .semester, separator: " / "), emphasized: false)
-            hoursSubRow(label: "방학 중", value: campusPlace.operatingHours.formattedPeriodHours(for: .vacation, separator: " / "), emphasized: false)
+            let isExpanded = expandedPlaceIds.contains(campusPlace.id)
+            foldableHoursRow(
+                label: "운영시간",
+                value: campusPlace.operatingHours.formattedCurrentHours,
+                isExpanded: isExpanded
+            ) {
+                withAnimation(.easeInOut(duration: 0.2)) {
+                    if isExpanded {
+                        expandedPlaceIds.remove(campusPlace.id)
+                    } else {
+                        expandedPlaceIds.insert(campusPlace.id)
+                    }
+                }
+            }
+            
+            if isExpanded {
+                VStack(alignment: .leading, spacing: 8) {
+                    hoursSubRow(label: "학기 중", value: campusPlace.operatingHours.formattedPeriodHours(for: .semester), emphasized: campusPlace.operatingHours.isCurrent(for: .semester))
+                    hoursSubRow(label: "방학 중", value: campusPlace.operatingHours.formattedPeriodHours(for: .vacation), emphasized: campusPlace.operatingHours.isCurrent(for: .vacation))
+                }
+            }
         }
     }
 }
