@@ -17,7 +17,7 @@ public class KuringMapsLink {
         try await antenna.buildings()
     }
     
-    public static func searchBuildings(by keyword: String) async throws -> BuildingListResponse {
+    public static func searchBuildings(by keyword: String) async throws -> MapSearchResponse {
         try await antenna.search(by: keyword)
     }
     

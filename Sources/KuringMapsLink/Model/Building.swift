@@ -55,13 +55,15 @@ public struct Building: Codable, Identifiable, Hashable {
     public let address: String
     public let latitude: Double
     public let longitude: Double
-    
-    public init(id: Int, name: String, address: String, latitude: Double, longitude: Double) {
+    public let displayOrder: Int?
+
+    public init(id: Int, name: String, address: String, latitude: Double, longitude: Double, displayOrder: Int? = nil) {
         self.id = id
         self.name = name
         self.address = address
         self.latitude = latitude
         self.longitude = longitude
+        self.displayOrder = displayOrder
     }
     
     public func hash(into hasher: inout Hasher) {
