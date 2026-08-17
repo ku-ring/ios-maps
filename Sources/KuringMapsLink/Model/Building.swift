@@ -126,6 +126,20 @@ extension Array where Element == OperatingHour {
         }
         return "운영시간 정보 없음"
     }
+
+    /// 실제로 펼칠 수 있는 운영시간 정보(24시간 운영 또는 시작/종료 시각)가 하나라도 있는지 여부
+    public var hasKnownHours: Bool {
+        self.contains { hour in
+            switch hour.status {
+            case .open24Hours:
+                return true
+            case .scheduled:
+                return hour.opensAt != nil && hour.closesAt != nil
+            case .unknown:
+                return false
+            }
+        }
+    }
     
     public func formattedPeriodHours(for period: OperatingPeriod) -> String {
         let periodHours = self.filter { $0.period == period }
