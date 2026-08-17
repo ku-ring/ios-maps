@@ -20,6 +20,7 @@ class CampusMapViewController: UIViewController {
     private var lastBuildingsCount: Int = 0
     private var lastCampusPlacesCount: Int = 0
     private var lastSearchResultsCount: Int = 0
+    private var lastSearchPlaceResultsCount: Int = 0
     private var lastIsSearchActive: Bool = false
     private var cancellables = Set<AnyCancellable>()
     
@@ -97,28 +98,49 @@ class CampusMapViewController: UIViewController {
         let buildingsCount = viewModel.allBuildings.count
         let campusPlacesCount = viewModel.campusPlaces.count
         let searchResultsCount = viewModel.searchResults.count
+        let searchPlaceResultsCount = viewModel.searchPlaceResults.count
         let isSearchActive = viewModel.searchBarState.isActive
-        
+
         if lastCategoryNames == categoryNames &&
             lastBuildingsCount == buildingsCount &&
             lastCampusPlacesCount == campusPlacesCount &&
             lastSearchResultsCount == searchResultsCount &&
+            lastSearchPlaceResultsCount == searchPlaceResultsCount &&
             lastIsSearchActive == isSearchActive {
             return
         }
-        
+
         lastCategoryNames = categoryNames
         lastBuildingsCount = buildingsCount
         lastCampusPlacesCount = campusPlacesCount
         lastSearchResultsCount = searchResultsCount
+        lastSearchPlaceResultsCount = searchPlaceResultsCount
         lastIsSearchActive = isSearchActive
         
         mapView.removeAnnotations(mapView.annotations)
         
         if viewModel.selectedCategoryNames.isEmpty {
             if isSearchActive {
-                // 검색 결과 건물들만 보여주기
+                // 검색 결과 건물들만 보여주기 (건물명 + 시설명 매칭)
+                var shownBuildingIds = Set<Int>()
                 for building in viewModel.searchResults {
+                    guard shownBuildingIds.insert(building.id).inserted else {
+                        continue
+                    }
+                    addAnnotation(
+                        buildingId: building.id,
+                        latitudeValue: building.latitude,
+                        longitudeValue: building.longitude,
+                        title: building.name,
+                        subtitle: "",
+                        iconName: "building"
+                    )
+                }
+                for place in viewModel.searchPlaceResults {
+                    let building = place.building
+                    guard shownBuildingIds.insert(building.id).inserted else {
+                        continue
+                    }
                     addAnnotation(
                         buildingId: building.id,
                         latitudeValue: building.latitude,
