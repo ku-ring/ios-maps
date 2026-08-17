@@ -14,6 +14,8 @@ struct KuringMapBottomSheet: View {
     @Environment(\.dismiss) private var dismiss
     @Environment(\.mapAppearance) var appearance
 
+    @State private var selectedImage: Image? = nil
+
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 20) {
@@ -28,6 +30,7 @@ struct KuringMapBottomSheet: View {
             .padding(.bottom, 32)
         }
         .background(appearance.bg)
+        .imagePreview(image: $selectedImage)
     }
 }
 
