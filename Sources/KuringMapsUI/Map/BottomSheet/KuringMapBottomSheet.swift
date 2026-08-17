@@ -17,7 +17,7 @@ struct KuringMapBottomSheet: View {
     @State private var selectedImage: Image? = nil
     @State private var isBuildingHoursExpanded: Bool = false
     @State private var expandedPlaceIds: Set<Int64> = []
-
+    
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 20) {
@@ -94,7 +94,8 @@ extension KuringMapBottomSheet {
                 foldableHoursRow(
                     label: "운영시간",
                     value: detail.operatingHours.formattedCurrentHours,
-                    isExpanded: isBuildingHoursExpanded
+                    isExpanded: isBuildingHoursExpanded,
+                    hasDetail: detail.operatingHours.hasKnownHours
                 ) {
                     withAnimation(.easeInOut(duration: 0.2)) {
                         isBuildingHoursExpanded.toggle()
@@ -110,7 +111,10 @@ extension KuringMapBottomSheet {
             }
 
             if let imageUrlString = detail.imageUrl, let url = URL(string: imageUrlString) {
-                AsyncImage(url: url) { image in
+                CachedAsyncImage(
+                    url: url,
+                    cacheKey: "building:\(detail.id)"
+                ) { image in
                     image
                         .resizable()
                         .aspectRatio(contentMode: .fill)
@@ -177,30 +181,38 @@ extension KuringMapBottomSheet {
         }
     }
 
-    private func foldableHoursRow(label: String, value: String, isExpanded: Bool, onToggle: @escaping () -> Void) -> some View {
-        Button {
-            onToggle()
-        } label: {
-            HStack(alignment: .firstTextBaseline, spacing: 4) {
-                Text(label)
+    private func foldableHoursRow(label: String, value: String, isExpanded: Bool, hasDetail: Bool, onToggle: @escaping () -> Void) -> some View {
+        let rowContent = HStack(alignment: .firstTextBaseline, spacing: 4) {
+            Text(label)
+                .font(.system(size: 14))
+                .foregroundStyle(appearance.caption1)
+                .frame(width: 76, alignment: .leading)
+
+            HStack(alignment: .center, spacing: 6) {
+                Text(value)
                     .font(.system(size: 14))
-                    .foregroundStyle(appearance.caption1)
-                    .frame(width: 76, alignment: .leading)
+                    .foregroundStyle(appearance.body)
+                    .lineSpacing(2)
 
-                HStack(alignment: .center, spacing: 6) {
-                    Text(value)
-                        .font(.system(size: 14))
-                        .foregroundStyle(appearance.body)
-                        .lineSpacing(2)
-
-                    Image(systemName: "chevron.down")
+                if hasDetail {
+                    Image(systemName: isExpanded ? "chevron.up" : "chevron.down")
                         .font(.system(size: 10, weight: .semibold))
                         .foregroundStyle(appearance.gray300)
-                        .rotationEffect(.degrees(isExpanded ? 180 : 0))
+                        .contentTransition(.opacity)
                 }
             }
         }
-        .buttonStyle(.plain)
+
+        return Group {
+            if hasDetail {
+                Button(action: onToggle) {
+                    rowContent
+                }
+                .buttonStyle(.plain)
+            } else {
+                rowContent
+            }
+        }
     }
 
     /// 편의시설 (내부 시설 목록)
@@ -252,7 +264,8 @@ extension KuringMapBottomSheet {
             foldableHoursRow(
                 label: "운영시간",
                 value: campusPlace.operatingHours.formattedCurrentHours,
-                isExpanded: isExpanded
+                isExpanded: isExpanded,
+                hasDetail: campusPlace.operatingHours.hasKnownHours
             ) {
                 withAnimation(.easeInOut(duration: 0.2)) {
                     if isExpanded {

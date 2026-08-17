@@ -53,7 +53,10 @@ struct CategoryPlaceListView: View {
         } label: {
             HStack(spacing: 14) {
                 if let imageUrlString = place.imageUrl, let url = URL(string: imageUrlString) {
-                    AsyncImage(url: url) { image in
+                    CachedAsyncImage(
+                        url: url,
+                        cacheKey: "building:\(place.building.id)"
+                    ) { image in
                         image
                             .resizable()
                             .aspectRatio(contentMode: .fill)
