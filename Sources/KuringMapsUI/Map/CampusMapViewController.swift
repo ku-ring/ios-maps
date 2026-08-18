@@ -23,26 +23,37 @@ class CampusMapViewController: UIViewController {
     private var lastSearchPlaceResultsCount: Int = 0
     private var lastIsSearchActive: Bool = false
     private var cancellables = Set<AnyCancellable>()
-    
+    private var hasSetupCameraLimits = false
+
     var appearance: Appearance
-    
+
     init(viewModel: KuringMapViewModel, appearance: Appearance) {
         self.viewModel = viewModel
         self.appearance = appearance
         super.init(nibName: nil, bundle: nil)
     }
-    
+
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
-    
+
     override func viewDidLoad() {
         super.viewDidLoad()
         setupMapView()
         setupInitialCamera()
         setupSubscriptions()
     }
-    
+
+    override func viewDidLayoutSubviews() {
+        super.viewDidLayoutSubviews()
+        // 한 번만 설정
+        guard !hasSetupCameraLimits, mapView.bounds.width > 0, mapView.bounds.height > 0 else {
+            return
+        }
+        hasSetupCameraLimits = true
+        setupCameraLimits()
+    }
+
     private func setupSubscriptions() {
         viewModel.compassActionSubject
             .receive(on: DispatchQueue.main)
@@ -89,10 +100,18 @@ class CampusMapViewController: UIViewController {
             longitude: 127.076572
         )
         mapCamera.heading = 20
-        mapCamera.altitude = 4000
+        mapCamera.altitude = 5000
         mapView.setCamera(mapCamera, animated: false)
     }
-    
+
+    /// 캠퍼스맵 진입 시 기본으로 보여지는 화면을 최대 축소/패닝 한계로 사용한다
+    private func setupCameraLimits() {
+        mapView.cameraZoomRange = MKMapView.CameraZoomRange(
+            maxCenterCoordinateDistance: mapView.camera.altitude
+        )
+        mapView.cameraBoundary = MKMapView.CameraBoundary(coordinateRegion: mapView.region)
+    }
+
     func updateAnnotations() {
         let categoryNames = viewModel.selectedCategoryNames
         let buildingsCount = viewModel.allBuildings.count
