@@ -25,6 +25,9 @@ class CampusMapViewController: UIViewController {
     private var cancellables = Set<AnyCancellable>()
     private var hasSetupCameraLimits = false
 
+    private var currentHeading: CLLocationDirection?
+    private var pendingRecenterOnLocation = false
+
     var appearance: Appearance
 
     init(viewModel: KuringMapViewModel, appearance: Appearance) {
@@ -41,6 +44,7 @@ class CampusMapViewController: UIViewController {
         super.viewDidLoad()
         setupMapView()
         setupInitialCamera()
+        setupLocationManager()
         setupSubscriptions()
     }
 
@@ -61,19 +65,83 @@ class CampusMapViewController: UIViewController {
                 self?.resetMapHeading()
             }
             .store(in: &cancellables)
+
+        viewModel.locationActionSubject
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] in
+                self?.recenterOnUserLocation()
+            }
+            .store(in: &cancellables)
     }
-    
+
     private func resetMapHeading() {
         let camera = mapView.camera
         camera.heading = 0
         mapView.setCamera(camera, animated: true)
     }
-    
+
+    private func setupLocationManager() {
+        locationManager.delegate = self
+        locationManager.desiredAccuracy = kCLLocationAccuracyBest
+        mapView.showsUserLocation = true
+
+        switch locationManager.authorizationStatus {
+        case .notDetermined:
+            locationManager.requestWhenInUseAuthorization()
+        case .authorizedWhenInUse, .authorizedAlways:
+            startTrackingUserLocation()
+        default:
+            break
+        }
+    }
+
+    private func startTrackingUserLocation() {
+        locationManager.startUpdatingLocation()
+        if CLLocationManager.headingAvailable() {
+            locationManager.startUpdatingHeading()
+        }
+    }
+
+    /// "현위치로 돌아가기" 버튼
+    private func recenterOnUserLocation() {
+        switch locationManager.authorizationStatus {
+        case .notDetermined:
+            pendingRecenterOnLocation = true
+            locationManager.requestWhenInUseAuthorization()
+        case .authorizedWhenInUse, .authorizedAlways:
+            if let coordinate = mapView.userLocation.location?.coordinate {
+                centerCamera(on: coordinate)
+            } else {
+                pendingRecenterOnLocation = true
+                startTrackingUserLocation()
+            }
+        default:
+            break
+        }
+    }
+
+    private func centerCamera(on coordinate: CLLocationCoordinate2D) {
+        guard let camera = mapView.camera.copy() as? MKMapCamera else {
+            return
+        }
+        camera.centerCoordinate = coordinate
+        mapView.setCamera(camera, animated: true)
+    }
+
+    /// 내 위치 마커의 beam 방향을 갱신한다
+    private func updateUserLocationHeadingView() {
+        guard let view = mapView.view(for: mapView.userLocation) as? UserLocationAnnotationView else {
+            return
+        }
+        let rotation = currentHeading.map { $0 - mapView.camera.heading }
+        view.configure(tintColor: UIColor(appearance.primary), rotationDegrees: rotation)
+    }
+
     func setupMapView() {
         view.addSubview(mapView)
         mapView.delegate = self
         mapView.mapType = .mutedStandard
-        mapView.userTrackingMode = .followWithHeading
+        mapView.userTrackingMode = .none
         mapView.showsTraffic = false
         mapView.showsCompass = false
         mapView.pointOfInterestFilter = .excludingAll
@@ -198,37 +266,23 @@ class CampusMapViewController: UIViewController {
     }
 }
 
-extension CampusMapViewController {
-    /// 위도와 경도로 원하는 위치를 표시하고, 위치를 반환
-    func goLocation(
-        latitudeValue: CLLocationDegrees,
-        longitudeValue: CLLocationDegrees,
-        delta span: Double
-    ) -> CLLocationCoordinate2D {
-        
-        let location = CLLocationCoordinate2DMake(latitudeValue, longitudeValue)
-        let spanValue = MKCoordinateSpan(latitudeDelta: span, longitudeDelta: span)
-        let region = MKCoordinateRegion(center: location, span: spanValue)
-        
-        mapView.setRegion(region, animated: true)
-        
-        return location
-    }
-    
-    /// 위치가 업데이트 되었을 때 지도에 나타내기 위한 메서드
-    func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
-        guard let location = locations.last else {
-            return
+extension CampusMapViewController: CLLocationManagerDelegate {
+    func locationManagerDidChangeAuthorization(_ manager: CLLocationManager) {
+        switch manager.authorizationStatus {
+        case .authorizedWhenInUse, .authorizedAlways:
+            startTrackingUserLocation()
+        default:
+            break
         }
-        
-        _ = goLocation(
-            latitudeValue: location.coordinate.latitude,
-            longitudeValue: location.coordinate.longitude,
-            delta: 0.01
-        )
-        locationManager.stopUpdatingLocation()
     }
-    
+
+    func locationManager(_ manager: CLLocationManager, didUpdateHeading newHeading: CLHeading) {
+        currentHeading = newHeading.trueHeading >= 0 ? newHeading.trueHeading : newHeading.magneticHeading
+        updateUserLocationHeadingView()
+    }
+}
+
+extension CampusMapViewController {
     /// 어노테이션을 추가
     func addAnnotation(
         buildingId: Int,
@@ -278,6 +332,16 @@ extension CampusMapViewController: MKMapViewDelegate {
     }
     
     func mapView(_ mapView: MKMapView, viewFor annotation: any MKAnnotation) -> MKAnnotationView? {
+        if annotation is MKUserLocation {
+            let identifier = "UserLocation"
+            let view = mapView.dequeueReusableAnnotationView(withIdentifier: identifier) as? UserLocationAnnotationView
+                ?? UserLocationAnnotationView(annotation: annotation, reuseIdentifier: identifier)
+            view.annotation = annotation
+            let rotation = currentHeading.map { $0 - mapView.camera.heading }
+            view.configure(tintColor: UIColor(appearance.primary), rotationDegrees: rotation)
+            return view
+        }
+
         guard annotation is KuringAnnotation else {
             return nil
         }
@@ -312,5 +376,14 @@ extension CampusMapViewController: MKMapViewDelegate {
         if viewModel.mapHeading != heading {
             viewModel.mapHeading = heading
         }
+        updateUserLocationHeadingView()
+    }
+
+    func mapView(_ mapView: MKMapView, didUpdate userLocation: MKUserLocation) {
+        guard pendingRecenterOnLocation, let coordinate = userLocation.location?.coordinate else {
+            return
+        }
+        pendingRecenterOnLocation = false
+        centerCamera(on: coordinate)
     }
 }
