@@ -40,6 +40,7 @@ struct CategoryPlaceListView: View {
                     .padding(.top, 32)
                     .padding(.bottom, 24)
                 }
+                .scrollIndicators(.never)
             }
         }
         .background(appearance.bg)
