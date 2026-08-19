@@ -78,15 +78,9 @@ struct BuildingDetailListView: View {
                 }
 
                 VStack(alignment: .leading, spacing: 4) {
-                    HStack(alignment: .firstTextBaseline, spacing: 6) {
-                        Text(building.name)
-                            .font(.system(size: 16, weight: .medium))
-                            .foregroundStyle(appearance.body)
-                        
-                        Text("부속건물")
-                            .font(.system(size: 14))
-                            .foregroundStyle(appearance.caption1)
-                    }
+                    Text(building.name)
+                        .font(.system(size: 16, weight: .medium))
+                        .foregroundStyle(appearance.body)
 
                     HStack(spacing: 8) {
                         Text(building.address)

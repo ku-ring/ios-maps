@@ -314,9 +314,11 @@ extension KuringMap {
                         viewModel.locationActionSubject.send()
                     } label: {
                         Image("crosshair", bundle: .module)
+                            .renderingMode(.template)
                             .resizable()
                             .aspectRatio(contentMode: .fit)
                             .frame(width: 26, height: 26)
+                            .foregroundStyle(appearance.gray400)
                     }
                     .buttonStyle(.plain)
                     .frame(width: 44, height: 44)

@@ -22,19 +22,20 @@ struct KuringMapSearchView: View {
         VStack(spacing: 0) {
             searchBar
 
-            if isSearching {
-                if viewModel.searchResults.isEmpty && viewModel.searchPlaceResults.isEmpty {
-                    noResultsState
+            Group {
+                if isSearching {
+                    if viewModel.searchResults.isEmpty && viewModel.searchPlaceResults.isEmpty {
+                        noResultsState
+                    } else {
+                        resultsList
+                    }
+                } else if viewModel.recentSearches.isEmpty {
+                    emptyState
                 } else {
-                    resultsList
+                    recentSearchList
                 }
-            } else if viewModel.recentSearches.isEmpty {
-                emptyState
-            } else {
-                recentSearchList
             }
-
-            Spacer()
+            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
         }
         .background(appearance.bg)
         .navigationBarBackButtonHidden(true)
@@ -211,7 +212,7 @@ struct KuringMapSearchView: View {
 
     private var resultsList: some View {
         ScrollView {
-            LazyVStack(alignment: .leading, spacing: 0) {
+            VStack(alignment: .leading, spacing: 0) {
                 if !viewModel.searchResults.isEmpty {
                     if !viewModel.searchPlaceResults.isEmpty {
                         sectionHeader("건물")

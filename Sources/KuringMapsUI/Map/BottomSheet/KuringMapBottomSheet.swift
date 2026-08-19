@@ -68,10 +68,6 @@ extension KuringMapBottomSheet {
         let categoryIcons = Array(Set(detail.campusPlaces.map { $0.category })).sorted()
         
         return HStack(spacing: 8) {
-            Text("부속건물")
-                .font(.system(size: 14, weight: .medium))
-                .foregroundStyle(appearance.caption1)
-
             ForEach(categoryIcons, id: \.self) { iconName in
                 Image(iconName, bundle: .module)
                     .renderingMode(.template)
