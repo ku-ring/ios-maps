@@ -17,7 +17,8 @@ struct KuringMapBottomSheet: View {
     @State private var selectedImage: Image? = nil
     @State private var isBuildingHoursExpanded: Bool = false
     @State private var expandedPlaceIds: Set<Int64> = []
-    
+    @State private var showCopyToast: Bool = false
+
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 20) {
@@ -33,6 +34,13 @@ struct KuringMapBottomSheet: View {
         }
         .background(appearance.bg)
         .imagePreview(image: $selectedImage)
+        .overlay(alignment: .bottom) {
+            if showCopyToast {
+                copyToast
+                    .padding(.bottom, 8)
+                    .transition(.opacity.combined(with: .move(edge: .bottom)))
+            }
+        }
     }
 }
 
@@ -105,6 +113,8 @@ extension KuringMapBottomSheet {
                     }
                 }
             }
+            
+            Spacer()
 
             if let imageUrlString = detail.imageUrl, let url = URL(string: imageUrlString) {
                 CachedAsyncImage(
@@ -141,7 +151,7 @@ extension KuringMapBottomSheet {
 
     /// 정보 영역 - 주소
     private var addressRow: some View {
-        HStack(spacing: 4) {
+        HStack(alignment: .top, spacing: 4) {
             Text("주소")
                 .font(.system(size: 14))
                 .foregroundStyle(appearance.caption1)
@@ -154,11 +164,34 @@ extension KuringMapBottomSheet {
 
                 Button {
                     UIPasteboard.general.string = detail.address
+                    presentCopyToast()
                 } label: {
                     Image("copy", bundle: .module)
                         .font(.system(size: 12))
                         .foregroundStyle(appearance.gray300)
                 }
+            }
+        }
+    }
+
+    /// 주소 복사 토스트
+    private var copyToast: some View {
+        Text("주소가 복사되었습니다")
+            .font(.system(size: 13, weight: .medium))
+            .foregroundStyle(.white)
+            .padding(.horizontal, 14)
+            .padding(.vertical, 10)
+            .background(Capsule().fill(Color.black.opacity(0.75)))
+    }
+
+    private func presentCopyToast() {
+        withAnimation(.easeInOut(duration: 0.2)) {
+            showCopyToast = true
+        }
+        Task {
+            try? await Task.sleep(nanoseconds: 1_500_000_000)
+            withAnimation(.easeInOut(duration: 0.2)) {
+                showCopyToast = false
             }
         }
     }
