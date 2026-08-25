@@ -303,11 +303,6 @@ extension KuringMap {
                             Image("compass", bundle: .module)
                                 .resizable()
                                 .aspectRatio(contentMode: .fit)
-                                .background(
-                                    Circle()
-                                        .fill(appearance.bg)
-                                        .frame(width: 44, height: 44)
-                                )
                                 .rotationEffect(.degrees(-viewModel.mapHeading))
                         }
                         .buttonStyle(.plain)
