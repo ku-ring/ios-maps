@@ -17,10 +17,10 @@ class CampusMapViewController: UIViewController {
     
     // 렌더링 상태 캐싱을 위함
     private var lastCategoryNames: Set<String> = []
-    private var lastBuildingsCount: Int = 0
-    private var lastCampusPlacesCount: Int = 0
-    private var lastSearchResultsCount: Int = 0
-    private var lastSearchPlaceResultsCount: Int = 0
+    private var lastBuildingIds: [Int] = []
+    private var lastCampusPlaceIds: [Int] = []
+    private var lastSearchResultIds: [Int] = []
+    private var lastSearchPlaceResultIds: [Int] = []
     private var lastIsSearchActive: Bool = false
     private var cancellables = Set<AnyCancellable>()
     private var hasSetupCameraLimits = false
@@ -182,26 +182,26 @@ class CampusMapViewController: UIViewController {
 
     func updateAnnotations() {
         let categoryNames = viewModel.selectedCategoryNames
-        let buildingsCount = viewModel.allBuildings.count
-        let campusPlacesCount = viewModel.campusPlaces.count
-        let searchResultsCount = viewModel.searchResults.count
-        let searchPlaceResultsCount = viewModel.searchPlaceResults.count
+        let buildingIds = viewModel.allBuildings.map(\.id)
+        let campusPlaceIds = viewModel.campusPlaces.map(\.id)
+        let searchResultIds = viewModel.searchResults.map(\.id)
+        let searchPlaceResultIds = viewModel.searchPlaceResults.map(\.id)
         let isSearchActive = viewModel.searchBarState.isActive
 
         if lastCategoryNames == categoryNames &&
-            lastBuildingsCount == buildingsCount &&
-            lastCampusPlacesCount == campusPlacesCount &&
-            lastSearchResultsCount == searchResultsCount &&
-            lastSearchPlaceResultsCount == searchPlaceResultsCount &&
+            lastBuildingIds == buildingIds &&
+            lastCampusPlaceIds == campusPlaceIds &&
+            lastSearchResultIds == searchResultIds &&
+            lastSearchPlaceResultIds == searchPlaceResultIds &&
             lastIsSearchActive == isSearchActive {
             return
         }
 
         lastCategoryNames = categoryNames
-        lastBuildingsCount = buildingsCount
-        lastCampusPlacesCount = campusPlacesCount
-        lastSearchResultsCount = searchResultsCount
-        lastSearchPlaceResultsCount = searchPlaceResultsCount
+        lastBuildingIds = buildingIds
+        lastCampusPlaceIds = campusPlaceIds
+        lastSearchResultIds = searchResultIds
+        lastSearchPlaceResultIds = searchPlaceResultIds
         lastIsSearchActive = isSearchActive
         
         mapView.removeAnnotations(mapView.annotations)

@@ -116,7 +116,7 @@ public struct ImageViewer: View {
                         Image(systemName: "xmark")
                             .resizable()
                             .renderingMode(.template)
-                            .tint(.white)
+                            .foregroundStyle(.white)
                             .frame(width: 16, height: 16)
                     }
                     .padding(16)

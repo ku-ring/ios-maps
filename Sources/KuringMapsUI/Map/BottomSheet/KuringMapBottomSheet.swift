@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import UIKit
 import KuringMapsLink
 
 struct KuringMapBottomSheet: View {
@@ -77,7 +78,7 @@ extension KuringMapBottomSheet {
         
         return HStack(spacing: 8) {
             ForEach(categoryIcons, id: \.self) { iconName in
-                Image(iconName, bundle: .module)
+                Image(resolvedIconName(iconName), bundle: .module)
                     .renderingMode(.template)
                     .foregroundStyle(appearance.caption1)
                     .padding(2)
@@ -174,6 +175,11 @@ extension KuringMapBottomSheet {
         }
     }
 
+    /// 서버가 알 수 없는 카테고리 값을 내려줘도 빈 아이콘이 뜨지 않도록 기본 아이콘으로 대체
+    private func resolvedIconName(_ category: String) -> String {
+        UIImage(named: category, in: .module, compatibleWith: nil) != nil ? category : "general"
+    }
+
     /// 주소 복사 토스트
     private var copyToast: some View {
         Text("주소가 복사되었습니다")
@@ -261,8 +267,7 @@ extension KuringMapBottomSheet {
     private func amenityCard(_ campusPlace: CampusPlaceDetail) -> some View {
         VStack(alignment: .leading, spacing: 8) {
             HStack(spacing: 6) {
-                let iconName = campusPlace.category
-                Image(iconName, bundle: .module)
+                Image(resolvedIconName(campusPlace.category), bundle: .module)
                     .renderingMode(.template)
                     .font(.system(size: 12))
                     .foregroundStyle(appearance.primary)
