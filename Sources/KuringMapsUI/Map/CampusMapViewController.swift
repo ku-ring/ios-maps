@@ -5,60 +5,143 @@
 
 import UIKit
 import MapKit
+import Combine
+import SwiftUI
 import KuringMapsLink
 
-class CampusMapViewController: UIViewController, PlaceServiceDelegate {
-    
-    /// 학교 건물 정보
-    var places: [Place] = [] {
-        didSet {
-            self.mapView.removeAnnotations(self.mapView.annotations)
-            places.forEach { place in
-                addAnnotation(
-                    latitudeValue: place.latitude,
-                    longitudeValue: place.longitude,
-                    delta: 0.1,
-                    title: place.name,
-                    subtitle: place.category
-                )
-            }
-            /// 초기 좌표는 일감호의 좌표
-            let mapCamera = MKMapCamera()
-            mapCamera.centerCoordinate = CLLocationCoordinate2D(
-                latitude: 37.538744,
-                longitude: 127.076451
-            )
-            mapCamera.heading = 20
-            mapCamera.altitude = 5000
-            mapView.setCamera(mapCamera, animated: false)
-        }
-    }
+class CampusMapViewController: UIViewController {
+    let viewModel: KuringMapViewModel
     
     let locationManager = CLLocationManager()
     lazy var mapView = MKMapView()
     
+    // 렌더링 상태 캐싱을 위함
+    private var lastCategoryNames: Set<String> = []
+    private var lastBuildingIds: [Int] = []
+    private var lastCampusPlaceIds: [Int] = []
+    private var lastSearchResultIds: [Int] = []
+    private var lastSearchPlaceResultIds: [Int] = []
+    private var lastIsSearchActive: Bool = false
+    private var cancellables = Set<AnyCancellable>()
+    private var hasSetupCameraLimits = false
+
+    private var currentHeading: CLLocationDirection?
+    private var pendingRecenterOnLocation = false
+
+    var appearance: Appearance
+
+    init(viewModel: KuringMapViewModel, appearance: Appearance) {
+        self.viewModel = viewModel
+        self.appearance = appearance
+        super.init(nibName: nil, bundle: nil)
+    }
+
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+
     override func viewDidLoad() {
         super.viewDidLoad()
-        
-        Task {
-            let remotePlaces = try? await KuringMapsLink.placesInKonkukUniv
-            if let remotePlaces {
-                places = remotePlaces
-            } else {
-                
-                places = Place.places
-            }
-        }
-        PlaceManager.shared.delegate = self
         setupMapView()
-        setupAnnotation()
+        setupInitialCamera()
+        setupLocationManager()
+        setupSubscriptions()
     }
-    
+
+    override func viewDidLayoutSubviews() {
+        super.viewDidLayoutSubviews()
+        // 한 번만 설정
+        guard !hasSetupCameraLimits, mapView.bounds.width > 0, mapView.bounds.height > 0 else {
+            return
+        }
+        hasSetupCameraLimits = true
+        setupCameraLimits()
+    }
+
+    private func setupSubscriptions() {
+        viewModel.compassActionSubject
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] in
+                self?.resetMapHeading()
+            }
+            .store(in: &cancellables)
+
+        viewModel.locationActionSubject
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] in
+                self?.recenterOnUserLocation()
+            }
+            .store(in: &cancellables)
+    }
+
+    private func resetMapHeading() {
+        let camera = mapView.camera
+        camera.heading = 0
+        mapView.setCamera(camera, animated: true)
+    }
+
+    private func setupLocationManager() {
+        locationManager.delegate = self
+        locationManager.desiredAccuracy = kCLLocationAccuracyBest
+        mapView.showsUserLocation = true
+
+        switch locationManager.authorizationStatus {
+        case .notDetermined:
+            locationManager.requestWhenInUseAuthorization()
+        case .authorizedWhenInUse, .authorizedAlways:
+            startTrackingUserLocation()
+        default:
+            break
+        }
+    }
+
+    private func startTrackingUserLocation() {
+        locationManager.startUpdatingLocation()
+        if CLLocationManager.headingAvailable() {
+            locationManager.startUpdatingHeading()
+        }
+    }
+
+    /// "현위치로 돌아가기" 버튼
+    private func recenterOnUserLocation() {
+        switch locationManager.authorizationStatus {
+        case .notDetermined:
+            pendingRecenterOnLocation = true
+            locationManager.requestWhenInUseAuthorization()
+        case .authorizedWhenInUse, .authorizedAlways:
+            if let coordinate = mapView.userLocation.location?.coordinate {
+                centerCamera(on: coordinate)
+            } else {
+                pendingRecenterOnLocation = true
+                startTrackingUserLocation()
+            }
+        default:
+            break
+        }
+    }
+
+    private func centerCamera(on coordinate: CLLocationCoordinate2D) {
+        guard let camera = mapView.camera.copy() as? MKMapCamera else {
+            return
+        }
+        camera.centerCoordinate = coordinate
+        mapView.setCamera(camera, animated: true)
+    }
+
+    /// 내 위치 마커의 beam 방향을 갱신한다
+    private func updateUserLocationHeadingView() {
+        guard let view = mapView.view(for: mapView.userLocation) as? UserLocationAnnotationView else {
+            return
+        }
+        let rotation = currentHeading.map { $0 - mapView.camera.heading }
+        view.configure(tintColor: UIColor(appearance.primary), rotationDegrees: rotation)
+    }
+
     func setupMapView() {
         view.addSubview(mapView)
         mapView.delegate = self
         mapView.mapType = .mutedStandard
-        mapView.userTrackingMode = .followWithHeading
+        mapView.userTrackingMode = .none
         mapView.showsTraffic = false
         mapView.showsCompass = false
         mapView.pointOfInterestFilter = .excludingAll
@@ -71,115 +154,236 @@ class CampusMapViewController: UIViewController, PlaceServiceDelegate {
             mapView.trailingAnchor.constraint(equalTo: self.view.trailingAnchor)
         ]
         NSLayoutConstraint.activate(constraints)
+        mapView.register(
+            MKMarkerAnnotationView.self,
+            forAnnotationViewWithReuseIdentifier: AnnotationIdentifier.reuseIdentifier
+        )
     }
     
-    /// 핀 위치를 세팅
-    func setupAnnotation() {
-        places.forEach { place in
-            addAnnotation(
-                latitudeValue: place.latitude,
-                longitudeValue: place.longitude,
-                delta: 0.1,
-                title: place.name,
-                subtitle: place.category
-            )
-        }
-        
+    func setupInitialCamera() {
         /// 초기 좌표는 일감호의 좌표
         let mapCamera = MKMapCamera()
         mapCamera.centerCoordinate = CLLocationCoordinate2D(
-            latitude: 37.538744,
-            longitude: 127.076451
+            latitude: 37.540893,
+            longitude: 127.076572
         )
         mapCamera.heading = 20
         mapCamera.altitude = 5000
         mapView.setCamera(mapCamera, animated: false)
     }
-    
-    func placeServiceDidChange(places: [Place]) {
-        self.places = places
+
+    /// 캠퍼스맵 진입 시 기본으로 보여지는 화면을 최대 축소/패닝 한계로 사용한다
+    private func setupCameraLimits() {
+        mapView.cameraZoomRange = MKMapView.CameraZoomRange(
+            maxCenterCoordinateDistance: mapView.camera.altitude
+        )
+        mapView.cameraBoundary = MKMapView.CameraBoundary(coordinateRegion: mapView.region)
     }
-    
-    func placeServiceDidSelect(place: Place) {
-        guard let annotation = self.mapView.annotations.first(where: { $0.title == place.name }) as? MKPointAnnotation else { return }
-        self.mapView.selectAnnotation(annotation, animated: true)
+
+    func updateAnnotations() {
+        let categoryNames = viewModel.selectedCategoryNames
+        let buildingIds = viewModel.allBuildings.map(\.id)
+        let campusPlaceIds = viewModel.campusPlaces.map(\.id)
+        let searchResultIds = viewModel.searchResults.map(\.id)
+        let searchPlaceResultIds = viewModel.searchPlaceResults.map(\.id)
+        let isSearchActive = viewModel.searchBarState.isActive
+
+        if lastCategoryNames == categoryNames &&
+            lastBuildingIds == buildingIds &&
+            lastCampusPlaceIds == campusPlaceIds &&
+            lastSearchResultIds == searchResultIds &&
+            lastSearchPlaceResultIds == searchPlaceResultIds &&
+            lastIsSearchActive == isSearchActive {
+            return
+        }
+
+        lastCategoryNames = categoryNames
+        lastBuildingIds = buildingIds
+        lastCampusPlaceIds = campusPlaceIds
+        lastSearchResultIds = searchResultIds
+        lastSearchPlaceResultIds = searchPlaceResultIds
+        lastIsSearchActive = isSearchActive
+        
+        mapView.removeAnnotations(mapView.annotations)
+        
+        if viewModel.selectedCategoryNames.isEmpty {
+            if isSearchActive {
+                // 검색 결과 건물들만 보여주기 (건물명 + 시설명 매칭)
+                var shownBuildingIds = Set<Int>()
+                for building in viewModel.searchResults {
+                    guard shownBuildingIds.insert(building.id).inserted else {
+                        continue
+                    }
+                    addAnnotation(
+                        buildingId: building.id,
+                        latitudeValue: building.latitude,
+                        longitudeValue: building.longitude,
+                        title: building.name,
+                        subtitle: "",
+                        iconName: "building"
+                    )
+                }
+                for place in viewModel.searchPlaceResults {
+                    let building = place.building
+                    guard shownBuildingIds.insert(building.id).inserted else {
+                        continue
+                    }
+                    addAnnotation(
+                        buildingId: building.id,
+                        latitudeValue: building.latitude,
+                        longitudeValue: building.longitude,
+                        title: building.name,
+                        subtitle: "",
+                        iconName: "building"
+                    )
+                }
+            } else {
+                // 모든 건물 보여주기
+                for building in viewModel.allBuildings {
+                    addAnnotation(
+                        buildingId: building.id,
+                        latitudeValue: building.latitude,
+                        longitudeValue: building.longitude,
+                        title: building.name,
+                        subtitle: "",
+                        iconName: "building"
+                    )
+                }
+            }
+        } else {
+            // 필터된 건물만 보여주기
+            for place in viewModel.campusPlaces {
+                addAnnotation(
+                    buildingId: place.building.id,
+                    latitudeValue: place.building.latitude,
+                    longitudeValue: place.building.longitude,
+                    title: place.name,
+                    subtitle: place.building.name,
+                    iconName: place.category
+                )
+            }
+        }
+    }
+}
+
+extension CampusMapViewController: CLLocationManagerDelegate {
+    func locationManagerDidChangeAuthorization(_ manager: CLLocationManager) {
+        switch manager.authorizationStatus {
+        case .authorizedWhenInUse, .authorizedAlways:
+            startTrackingUserLocation()
+        default:
+            break
+        }
+    }
+
+    func locationManager(_ manager: CLLocationManager, didUpdateHeading newHeading: CLHeading) {
+        currentHeading = newHeading.trueHeading >= 0 ? newHeading.trueHeading : newHeading.magneticHeading
+        updateUserLocationHeadingView()
     }
 }
 
 extension CampusMapViewController {
-    /// 위도와 경도로 원하는 위치를 표시하고, 위치를 반환
-    func goLocation(
-        latitudeValue: CLLocationDegrees,
-        longitudeValue: CLLocationDegrees,
-        delta span: Double
-    ) -> CLLocationCoordinate2D {
-        
-        let location = CLLocationCoordinate2DMake(latitudeValue, longitudeValue)
-        let spanValue = MKCoordinateSpan(latitudeDelta: span, longitudeDelta: span)
-        let region = MKCoordinateRegion(center: location, span: spanValue)
-        
-        mapView.setRegion(region, animated: true)
-        
-        return location
-    }
-    
-    /// 위치가 업데이트 되었을 때 지도에 나타내기 위한 메서드
-    func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
-        guard let location = locations.last else { return }
-        
-        _ = goLocation(
-            latitudeValue: location.coordinate.latitude,
-            longitudeValue: location.coordinate.longitude,
-            delta: 0.01
-        )
-        
-        CLGeocoder().reverseGeocodeLocation(location) { placemarks, error -> Void in
-            let placemark = placemarks?.first
-            let country = placemark?.country
-            var address: String = country!
-            if placemark?.locality != nil {
-                address += " "
-                address += placemark!.thoroughfare!
-            }
-        }
-        
-        locationManager.stopUpdatingLocation()
-    }
-    
     /// 어노테이션을 추가
     func addAnnotation(
+        buildingId: Int,
         latitudeValue: CLLocationDegrees,
         longitudeValue: CLLocationDegrees,
-        delta span: Double,
         title: String,
-        subtitle: String
+        subtitle: String,
+        iconName: String
     ) {
-        let annotation = MKPointAnnotation()
-        annotation.coordinate = goLocation(latitudeValue: latitudeValue, longitudeValue: longitudeValue, delta: span)
-        
-        annotation.title = title
-        annotation.subtitle = subtitle
+        let coordinate = CLLocationCoordinate2D(
+            latitude: latitudeValue,
+            longitude: longitudeValue
+        )
+
+        let annotation = KuringAnnotation(
+            coordinate: coordinate,
+            title: title,
+            subtitle: subtitle,
+            iconName: iconName,
+            buildingId: buildingId
+        )
+
         mapView.addAnnotation(annotation)
     }
 }
 
-import Combine
-
 extension CampusMapViewController: MKMapViewDelegate {
+    enum AnnotationIdentifier {
+        static let reuseIdentifier = "AnnotationView"
+    }
+    
     /// 맵뷰에서 annotation을 선택했을 때
     func mapView(_ mapView: MKMapView, didSelect view: MKAnnotationView) {
-//        let annotation = view.annotation!
-//
-//        mapView.setCenter(annotation.coordinate, animated: true)
-        let selectedPlace = self.places.first {
-            view.annotation?.title == $0.name
+        guard let annotation = view.annotation as? KuringAnnotation else {
+            return
         }
-        placeSeletionPublisher.send(selectedPlace)
+
+        mapView.setCenter(annotation.coordinate, animated: true)
+        
+        Task {
+            await viewModel.selectBuilding(id: annotation.buildingId)
+        }
     }
     
     func mapView(_ mapView: MKMapView, didDeselect annotation: MKAnnotation) {
-        placeSeletionPublisher.send(nil)
+        viewModel.deselectBuilding()
+    }
+    
+    func mapView(_ mapView: MKMapView, viewFor annotation: any MKAnnotation) -> MKAnnotationView? {
+        if annotation is MKUserLocation {
+            let identifier = "UserLocation"
+            let view = mapView.dequeueReusableAnnotationView(withIdentifier: identifier) as? UserLocationAnnotationView
+                ?? UserLocationAnnotationView(annotation: annotation, reuseIdentifier: identifier)
+            view.annotation = annotation
+            let rotation = currentHeading.map { $0 - mapView.camera.heading }
+            view.configure(tintColor: UIColor(appearance.primary), rotationDegrees: rotation)
+            return view
+        }
+
+        guard annotation is KuringAnnotation else {
+            return nil
+        }
+
+        let view = mapView.dequeueReusableAnnotationView(
+            withIdentifier: AnnotationIdentifier.reuseIdentifier,
+            for: annotation
+        ) as? MKMarkerAnnotationView
+        ?? MKMarkerAnnotationView(annotation: annotation, reuseIdentifier: AnnotationIdentifier.reuseIdentifier)
+
+        view.markerTintColor = UIColor(appearance.primary)
+        if let annotation = annotation as? KuringAnnotation {
+            view.glyphImage = UIImage(
+                named: annotation.iconName,
+                in: .module,
+                with: nil
+            )
+        }
+        view.glyphTintColor = .white
+        view.titleVisibility = .visible
+        view.canShowCallout = false
+
+        return view
+    }
+    
+    func mapViewDidChangeVisibleRegion(_ mapView: MKMapView) {
+        let heading = mapView.camera.heading
+        let isRotated = abs(heading) > 1.0
+        if viewModel.isMapRotated != isRotated {
+            viewModel.isMapRotated = isRotated
+        }
+        if viewModel.mapHeading != heading {
+            viewModel.mapHeading = heading
+        }
+        updateUserLocationHeadingView()
+    }
+
+    func mapView(_ mapView: MKMapView, didUpdate userLocation: MKUserLocation) {
+        guard pendingRecenterOnLocation, let coordinate = userLocation.location?.coordinate else {
+            return
+        }
+        pendingRecenterOnLocation = false
+        centerCamera(on: coordinate)
     }
 }
-
-

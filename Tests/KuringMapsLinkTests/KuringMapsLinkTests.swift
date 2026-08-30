@@ -14,15 +14,15 @@ final class KuringMapsLinkTests: XCTestCase {
         
     }
     
-    func test_places() throws {
-        let places = Place.places
-        print(places)
-        XCTAssertFalse(places.isEmpty)
+    func test_categories() async throws {
+        let categories = try await KuringMapsLink.fetchCategories()
+        print(categories)
+        XCTAssertFalse(categories.categories.isEmpty)
     }
     
-    func test_placesFromServer() async throws {
-        let places = try await KuringMapsLink.placesInKonkukUniv
-        print(places)
-        XCTAssertFalse(places.isEmpty)
+    func test_buildingsFromServer() async throws {
+        let buildings = try await KuringMapsLink.fetchBuildings()
+        print(buildings)
+        XCTAssertFalse(buildings.buildings.isEmpty)
     }
 }
