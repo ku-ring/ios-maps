@@ -21,9 +21,24 @@ public class KonkukLibraryLink {
                 .init(name: "smufMethodCode", value: "PC"),
                 .init(name: "roomTypeId", value: "4"),
                 .init(name: "branchGroupId", value: "1"),
+            ],
+            httpHeaders: [
+                "Content-Type": "application/json",
+                "Accept": "application/json, text/plain, */*",
+                "Referer": "https://library.konkuk.ac.kr/",
+                "User-Agent": Self.browserUserAgent,
             ]
         )
         return response.data.list
+    }
+    
+    static var browserUserAgent: String {
+        let os = ProcessInfo.processInfo.operatingSystemVersion
+        let osVersion = "\(os.majorVersion)_\(os.minorVersion)"
+        let safariVersion = "\(os.majorVersion).\(os.minorVersion)"
+        return "Mozilla/5.0 (iPhone; CPU iPhone OS \(osVersion) like Mac OS X) "
+            + "AppleWebKit/605.1.15 (KHTML, like Gecko) "
+            + "Version/\(safariVersion) Mobile/15E148 Safari/604.1"
     }
 
     struct Response<DataItem: Decodable>: Decodable {
