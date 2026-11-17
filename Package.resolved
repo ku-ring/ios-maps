@@ -14,8 +14,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/ku-ring/the-satellite-extended",
       "state" : {
-        "branch" : "main",
-        "revision" : "2ca38855c2c5149931670c245b0e586f979ad911"
+        "revision" : "2ca38855c2c5149931670c245b0e586f979ad911",
+        "version" : "1.0.0"
       }
     }
   ],

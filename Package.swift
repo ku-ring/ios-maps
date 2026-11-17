@@ -17,7 +17,7 @@ let package = Package(
         )
     ],
     dependencies: [
-        .package(url: "https://github.com/ku-ring/the-satellite-extended", branch: "main"),
+        .package(url: "https://github.com/ku-ring/the-satellite-extended", from: "1.0.0"),
         .package(url: "https://github.com/nicklockwood/SwiftFormat", from: "0.50.4"),
     ],
     targets: [
